@@ -1,8 +1,9 @@
 import os
+import subprocess
 
 from download import download as d
 
-from config import PROGRAM_PATH
+from config import TO_PATH_PATH, SEP
 
 
 def download(url, filename, kind="file"):
@@ -18,19 +19,21 @@ def find_max_version(input_string, versions):
     return max_version
 
 
-def addToPath(folder):
-    toPath = PROGRAM_PATH + os.path.sep + 'toPath.exe'
-    os.system(f'{toPath} add "{folder}"')
+def addToPath(folder: str):
+    os.system(f'{TO_PATH_PATH} add "{folder.rstrip(SEP)}"')
     pass
 
 
-def removeToPath(folder):
-    toPath = PROGRAM_PATH + os.path.sep + 'toPath.exe'
-    os.system(f'{toPath} remove "{folder}"')
+def removeToPath(folder: str):
+    os.system(f'{TO_PATH_PATH} remove "{folder.rstrip(SEP)}"')
     pass
 
 
-def existsToPath(folder):
-    toPath = PROGRAM_PATH + os.path.sep + 'toPath.exe'
-    return os.system(f'{toPath} exists "{folder}"') == 0
+def existsToPath(folder: str):
+    return os.system(f'{TO_PATH_PATH} exists "{folder.rstrip(SEP)}"') == 0
     pass
+
+
+def cmd(command):
+    result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    return result.stdout.strip("\n").split('\n') if result.stdout else []

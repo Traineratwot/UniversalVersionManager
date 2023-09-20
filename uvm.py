@@ -2,18 +2,18 @@ import argparse
 
 from termcolor import colored
 
-from config import PROGRAM_PATH
+from config import PROGRAM_PATH, BIN_PATH, TO_PATH_PATH
 from service import Node
 import os
 
-from utils import download
-
-
+from utils import download, addToPath
 
 
 def install():
     os.mkdir(PROGRAM_PATH)
-    download(filename=PROGRAM_PATH + 'toPath.exe',
+    os.mkdir(BIN_PATH)
+    addToPath(BIN_PATH)
+    download(filename=TO_PATH_PATH,
              url="https://github.com/Traineratwot/toPath/releases/download/1.2.0/toPath.exe")
 
 

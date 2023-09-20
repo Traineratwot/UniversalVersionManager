@@ -3,6 +3,9 @@ from abc import ABC, abstractmethod
 
 
 class abstractService(ABC):
+    def __init__(self):
+        self.setup()
+
     @abstractmethod
     def use(self, args: argparse.Namespace):
         pass
@@ -25,6 +28,10 @@ class abstractService(ABC):
 
     @abstractmethod
     def search(self, args: argparse.Namespace):
+        pass
+
+    @abstractmethod
+    def setup(self):
         pass
 
     def callByName(self, func_name, args: argparse.Namespace):
