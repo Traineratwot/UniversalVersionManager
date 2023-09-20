@@ -1,7 +1,7 @@
 import argparse
 import os.path
-import platform
 import sys
+from distutils.version import LooseVersion
 
 import requests
 from prettytable import PrettyTable
@@ -33,7 +33,11 @@ class Node(abstractService):
         href = getVersions()[version]
         name = f"node-v{version}-win-x{64 if is_64bits else 86}"
         href = href + name + ".zip"
+        # Скачивает ноду
         download(filename=PROGRAM_PATH + 'node' + os.path.sep + version, url=href, kind='zip')
+
+
+
         return 'install'
         pass
 
@@ -58,6 +62,9 @@ class Node(abstractService):
 
         versions = getVersions()
         my_table = PrettyTable()
+
+        versions.keys()
+
         for version in versions.keys():
             my_table.add_row([version,versions[version]])
         return my_table

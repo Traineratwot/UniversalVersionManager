@@ -2,7 +2,7 @@ from download import download as d
 
 
 def download(url, filename, kind="file"):
-    return d(url, filename, progressbar=True, replace=False, kind=kind)
+    return d(url, filename, progressbar=True, replace=False, kind=kind, verbose=True)
 
 
 def find_max_version(input_string, versions):
