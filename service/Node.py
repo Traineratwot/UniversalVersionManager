@@ -1,7 +1,6 @@
 import argparse
 import os.path
 import sys
-from distutils.version import LooseVersion
 
 import requests
 from prettytable import PrettyTable
@@ -9,8 +8,8 @@ from prettytable import PrettyTable
 from abstractService import abstractService
 from bs4 import BeautifulSoup
 
-from utils import find_max_version, download
-from uvm import PROGRAM_PATH
+from config import PROGRAM_PATH
+from utils import find_max_version, download, addToPath, removeToPath
 
 nodeBaseAddress = "https://nodejs.org/dist/"
 versions = {}
@@ -20,6 +19,7 @@ class Node(abstractService):
     """A simple example class"""
 
     def use(self, args: argparse.Namespace):
+
         return 'use'
         pass
 
@@ -33,15 +33,16 @@ class Node(abstractService):
         href = getVersions()[version]
         name = f"node-v{version}-win-x{64 if is_64bits else 86}"
         href = href + name + ".zip"
-        # Скачивает ноду
+        # Скачивает node
         download(filename=PROGRAM_PATH + 'node' + os.path.sep + version, url=href, kind='zip')
-
+        addToPath(r"C:\Users\Kirill\go\test")
 
 
         return 'install'
         pass
 
     def remove(self, args: argparse.Namespace):
+        removeToPath(r"C:\Users\Kirill\go\test")
         return 'remove'
         pass
 

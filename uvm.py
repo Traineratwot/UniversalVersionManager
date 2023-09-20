@@ -1,19 +1,19 @@
 import argparse
-import sys
 
 from termcolor import colored
 
+from config import PROGRAM_PATH
 from service import Node
 import os
 
 from utils import download
 
-PROGRAM_PATH = os.environ['APPDATA'] + os.path.sep + 'UVM' + os.path.sep
+
 
 
 def install():
     os.mkdir(PROGRAM_PATH)
-    download(filename=PROGRAM_PATH + '/toPath.exe',
+    download(filename=PROGRAM_PATH + 'toPath.exe',
              url="https://github.com/Traineratwot/toPath/releases/download/1.2.0/toPath.exe")
 
 
@@ -29,8 +29,6 @@ def route(args: argparse.Namespace):
         case _:
             print("Unknown " + args.service)
     pass
-
-
 
 
 if __name__ == '__main__':
