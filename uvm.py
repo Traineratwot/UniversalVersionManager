@@ -1,0 +1,60 @@
+import argparse
+import sys
+
+from termcolor import colored
+
+from service import Node
+import os
+
+from utils import download
+
+PROGRAM_PATH = os.environ['APPDATA'] + os.path.sep + 'UVM' + os.path.sep
+
+
+def install():
+    os.mkdir(PROGRAM_PATH)
+    download(filename=PROGRAM_PATH + '/toPath.exe',
+             url="https://github.com/Traineratwot/toPath/releases/download/1.2.0/toPath.exe")
+
+
+def route(args: argparse.Namespace):
+    match args.service:
+        case 'node':
+            service = Node.Node().callByName(args.action, args)
+            print(service)
+        case 'php':
+            pass
+        case 'python':
+            pass
+        case _:
+            print("Unknown " + args.service)
+    pass
+
+
+
+
+if __name__ == '__main__':
+    if not os.path.exists(PROGRAM_PATH):
+        install()
+
+    parser = argparse.ArgumentParser(
+        prog='UVM',
+        description='Universal Version Manager',
+        epilog='Thanks for use :)'
+    )
+
+    parser.add_argument("service", choices=['node', 'php', 'python'])
+    parser.add_argument("action", choices=['use', 'list', 'install', 'remove', 'search', 'path'], help=f"""
+    {colored("use", "green")}       -   {colored("select version to use", "light_blue")};\n
+    {colored("list", "green")}      -   {colored("show all available versions", "light_blue")};\n
+    {colored("install", "green")}   -   {colored("install new version", "light_blue")};\n
+    {colored("remove", "green")}    -   {colored("remove version", "light_blue")};\n
+    {colored("path", "green")}      -   {colored("get path to source folder", "light_blue")};\n
+    {colored("search", "green")}    -   {colored("shows all versions available for installation", "light_blue")};\n
+    """, metavar='Action')
+    parser.add_argument("version", default=None, nargs='?', metavar='Version',
+                        help=F"{colored('version string', 'light_blue')}")
+
+    args = parser.parse_args()
+
+    route(args)
