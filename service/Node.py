@@ -7,18 +7,19 @@ import questionary
 import requests
 from bs4 import BeautifulSoup
 from prettytable import PrettyTable
+from version_parser import Version
 
 from abstractService import abstractService
 from config import NODE_PATH, BIN_PATH, SEP, VERBOSE
 from utils import find_max_version, download, addToPath, removeToPath, cmd, createSymlink, \
-    removeSymlink
+    removeSymlink, strToVersion
 
 nodeBaseAddress = "https://nodejs.org/dist/"
 versions = {}
 
 
 class Node(abstractService):
-    """A simple example class"""
+    """Управлене node и npm """
 
     def off(self, args: argparse.Namespace):
         removeSymlink(BIN_PATH + 'node')
@@ -131,13 +132,31 @@ class Node(abstractService):
         my_table = PrettyTable()
         my_table.add_column("version", '')
         my_table.add_column("url", '')
-        _versions.keys()
+        search_list = {}
 
-        for version in _versions.keys():
-            if args.version:
-                if args.version not in version:
-                    continue
-            my_table.add_row([version, _versions[version]])
+        def custom_sort(item):
+            return Version(strToVersion(item))
+
+        _versionKeys = sorted(_versions.keys(), key=custom_sort, reverse=True)
+        for version in _versionKeys:
+            try:
+                v = Version(strToVersion(version))
+                m = v.get_major_version()
+                if m not in search_list:
+                    search_list[m] = []
+                search_list[m] += [v.__str__()]
+            except ValueError:
+                pass
+        if args.version:
+            m = Version(strToVersion(args.version)).get_major_version()
+            if m in search_list:
+                for version in search_list[m]:
+                    if args.version in version:
+                        my_table.add_row([version, _versions[version]])
+        else:
+            for majors in search_list:
+                maxVersion = search_list[majors][0]
+                my_table.add_row([maxVersion, _versions[maxVersion]])
         return my_table
         pass
 
@@ -150,16 +169,14 @@ def getVersions():
     links = soup.select('pre a')
     for link in links:
         if link.attrs['href']:
-            if link.text.startswith("v") or link.text.startswith("latest"):
-                if link.text.startswith("v0"):
-                    continue
+            try:
                 href = nodeBaseAddress + link.attrs['href']
                 version = link.text.strip('latest-v/.x')
-                if not version:
-                    continue
-                # if not containsNumbers(version):
-                #     continue
+                Version(strToVersion(version))
                 versions[version] = href
+            except ValueError:
+                pass
+
     return versions
     pass
 

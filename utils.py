@@ -2,6 +2,7 @@ import os
 import subprocess
 
 from download import download as d
+from version_parser import Version, VersionType
 
 from config import TO_PATH_PATH, SEP, VERBOSE
 
@@ -87,7 +88,18 @@ def removeSymlink(target_dir, verbose=VERBOSE):
         if verbose:
             print(f"Symlink {target_dir} not exist.")
 
-# def containsNumbers(string):
-#     pattern = r'\d+'
-#     match = re.search(pattern, string)
-#     return bool(match)
+
+def strToVersion(string: str):
+    def convert(incorrect_string: str):
+        arr = incorrect_string.split('.')
+        length = 3 - len(arr)
+        arr = arr + ['0'] * length
+        return ".".join(arr)
+
+    try:
+        v = Version(string)
+        if v.get_type() != VersionType.STRIPPED_VERSION:
+            string = convert(string)
+    except ValueError:
+        string = convert(string)
+    return Version(string).__str__()
