@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from prettytable import PrettyTable
 
 from abstractService import abstractService
-from config import NODE_PATH, BIN_PATH, SEP
+from config import NODE_PATH, BIN_PATH, SEP, VERBOSE
 from utils import find_max_version, download, addToPath, removeToPath, cmd, createSymlink, \
     removeSymlink
 
@@ -31,11 +31,14 @@ class Node(abstractService):
             my_table = PrettyTable()
             for item in allNodes:
                 my_table.add_row([item])
-            answer = questionary.confirm(f"""
-Alternative installations have been found:
-{my_table}
-Do you want to replace them?
-""").ask()
+            answer = True
+            if not VERBOSE:
+                q = questionary.confirm(f"""
+                Alternative installations have been found:
+                {my_table}
+                Do you want to replace them?
+                """)
+                answer = q.ask()
             if answer:
                 # Интеграция с nvm
                 if len(cmd("where nvm")):
@@ -96,7 +99,10 @@ Do you want to replace them?
         path = self.path(args)
         if path:
             path = os.path.dirname(os.path.dirname(path))
-            answer = questionary.confirm(f"Delete this '{path}' ?").ask()
+            answer = True
+            if not VERBOSE:
+                q = questionary.confirm(f"Delete this '{path}' ?")
+                answer = q.ask()
             if answer:
                 shutil.rmtree(path)
                 return f'removed {path}'

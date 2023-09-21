@@ -7,6 +7,8 @@ from config import PROGRAM_PATH, BIN_PATH, TO_PATH_PATH
 from service import Node
 from utils import download
 
+TEST = False
+
 
 def install():
     os.mkdir(PROGRAM_PATH)

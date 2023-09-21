@@ -87,7 +87,6 @@ def removeSymlink(target_dir, verbose=VERBOSE):
         if verbose:
             print(f"Symlink {target_dir} not exist.")
 
-
 # def containsNumbers(string):
 #     pattern = r'\d+'
 #     match = re.search(pattern, string)
