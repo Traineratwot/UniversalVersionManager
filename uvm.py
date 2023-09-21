@@ -1,18 +1,16 @@
 import argparse
+import os
 
 from termcolor import colored
 
 from config import PROGRAM_PATH, BIN_PATH, TO_PATH_PATH
 from service import Node
-import os
-
-from utils import download, addToPath
+from utils import download
 
 
 def install():
     os.mkdir(PROGRAM_PATH)
     os.mkdir(BIN_PATH)
-    addToPath(BIN_PATH)
     download(filename=TO_PATH_PATH,
              url="https://github.com/Traineratwot/toPath/releases/download/1.2.0/toPath.exe")
 
@@ -42,8 +40,9 @@ if __name__ == '__main__':
     )
 
     parser.add_argument("service", choices=['node', 'php', 'python'])
-    parser.add_argument("action", choices=['use', 'list', 'install', 'remove', 'search', 'path'], help=f"""
+    parser.add_argument("action", choices=['use', 'list', 'install', 'remove', 'search', 'path', 'off'], help=f"""
     {colored("use", "green")}       -   {colored("select version to use", "light_blue")};\n
+    {colored("off", "green")}       -   {colored("deselect any version", "light_blue")};\n
     {colored("list", "green")}      -   {colored("show all available versions", "light_blue")};\n
     {colored("install", "green")}   -   {colored("install new version", "light_blue")};\n
     {colored("remove", "green")}    -   {colored("remove version", "light_blue")};\n

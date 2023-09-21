@@ -11,6 +11,10 @@ class abstractService(ABC):
         pass
 
     @abstractmethod
+    def off(self, args: argparse.Namespace):
+        pass
+
+    @abstractmethod
     def list(self, args: argparse.Namespace):
         pass
 
@@ -48,8 +52,10 @@ class abstractService(ABC):
                 return self.path(args)
             case 'search':
                 return self.search(args)
+            case 'off':
+                return self.off(args)
             case _:
-                print("Изи на хуй придурок")
+                print("error")
         pass
 
         pass

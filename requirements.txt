@@ -1,0 +1,6 @@
+termcolor==2.3.0
+questionary==2.0.1
+requests==2.31.0
+prettytable==3.9.0
+beautifulsoup4==4.12.2
+download==0.3.5
