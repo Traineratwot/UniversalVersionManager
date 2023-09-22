@@ -1,20 +1,22 @@
 import argparse
+import json
 import os.path
+import pprint
 import shutil
 import sys
 
 import questionary
 import requests
-from bs4 import BeautifulSoup
 from prettytable import PrettyTable
 from version_parser import Version
 
 from abstractService import abstractService
 from config import NODE_PATH, BIN_PATH, SEP, VERBOSE
-from utils import find_max_version, download, addToPath, removeToPath, cmd, createSymlink, \
+from utils import download, addToPath, removeToPath, cmd, createSymlink, \
     removeSymlink, strToVersion
 
 nodeBaseAddress = "https://nodejs.org/dist/"
+nodeReleasesAddress = "https://nodejs.org/dist/index.json"
 versions = {}
 
 
@@ -86,12 +88,11 @@ class Node(abstractService):
 
     def install(self, args: argparse.Namespace):
         is_64bits = sys.maxsize > 2 ** 32
-        version = find_max_version(args.version, getVersions().keys())
-        href = getVersions()[version]
-        name = f"node-v{version}-win-x{64 if is_64bits else 86}"
-        href = href + name + ".zip"
+        v = getVersionFromUserRequest(args)
+        name = f"node-{v['version']}-win-x{64 if is_64bits else 86}"
+        href = nodeBaseAddress + v['version'] + "/" + name + ".zip"
         # Скачивает node
-        download(filename=NODE_PATH + version, url=href, kind='zip')
+        download(filename=NODE_PATH + v['version'], url=href, kind='zip')
 
         return 'install'
         pass
@@ -114,8 +115,8 @@ class Node(abstractService):
     def path(self, args: argparse.Namespace):
         if not args.version:
             raise "need version"
-        version = find_max_version(args.version, getVersions().keys())
-        folder = NODE_PATH + version + os.path.sep
+        v = getVersionFromUserRequest(args)
+        folder = NODE_PATH + v['version'] + os.path.sep
         if os.path.exists(folder):
             with os.scandir(folder) as it:
                 for entry in it:
@@ -127,56 +128,84 @@ class Node(abstractService):
         pass
 
     def search(self, args: argparse.Namespace):
-
         _versions = getVersions()
         my_table = PrettyTable()
         my_table.add_column("version", '')
-        my_table.add_column("url", '')
-        search_list = {}
-
-        def custom_sort(item):
-            return Version(strToVersion(item))
-
-        _versionKeys = sorted(_versions.keys(), key=custom_sort, reverse=True)
-        for version in _versionKeys:
-            try:
-                v = Version(strToVersion(version))
-                m = v.get_major_version()
-                if m not in search_list:
-                    search_list[m] = []
-                search_list[m] += [v.__str__()]
-            except ValueError:
-                pass
+        my_table.add_column("lts", '')
         if args.version:
-            m = Version(strToVersion(args.version)).get_major_version()
-            if m in search_list:
-                for version in search_list[m]:
-                    if args.version in version:
-                        my_table.add_row([version, _versions[version]])
+            m = Version(strToVersion(args.version)).get_major_version().__str__()
+            if m in _versions['list']:
+                for version in _versions['list'][m]:
+                    if args.version in version['version']:
+                        my_table.add_row([version['version'], version['lts']])
         else:
-            for majors in search_list:
-                maxVersion = search_list[majors][0]
-                my_table.add_row([maxVersion, _versions[maxVersion]])
+            for lts in _versions['lts']:
+                my_table.add_row([_versions['lts'][lts]['version'], True])
         return my_table
         pass
+
+
+def getVersionFromUserRequest(args: argparse.Namespace):
+    _versions = getVersions()
+    version = Version(strToVersion(args.version))
+    userMajor = version.get_major_version()
+    userMinor = version.get_minor_version()
+    userBuild = version.get_build_version()
+    founded = None
+    for version in _versions['list'][userMajor.__str__()]:
+        v = Version(version['version'])
+        listMajor = v.get_major_version()
+        listMinor = v.get_minor_version()
+        listBuild = v.get_build_version()
+        if listMajor == userMajor and listMinor == userMinor and listBuild == userBuild:
+            founded = version
+    if founded:
+        return founded
+    else:
+        for version in _versions['list'][userMajor.__str__()]:
+            v = Version(version['version'])
+            listMajor = v.get_major_version()
+            listMinor = v.get_minor_version()
+            if listMajor == userMajor and listMinor == userMinor:
+                founded = version
+    if founded:
+        return founded
+    else:
+        for version in _versions['list'][userMajor.__str__()]:
+            v = Version(version['version'])
+            listMajor = v.get_major_version()
+            if listMajor == userMajor and version['lts']:
+                founded = version
+    if founded:
+        return founded
+    else:
+        for version in _versions['list'][userMajor.__str__()]:
+            v = Version(version['version'])
+            listMajor = v.get_major_version()
+            if listMajor == userMajor:
+                return version
+    pass
 
 
 def getVersions():
     if len(versions.keys()) > 0:
         return versions
-    html = requests.get(nodeBaseAddress).content
-    soup = BeautifulSoup(html, 'html.parser')
-    links = soup.select('pre a')
-    for link in links:
-        if link.attrs['href']:
-            try:
-                href = nodeBaseAddress + link.attrs['href']
-                version = link.text.strip('latest-v/.x')
-                Version(strToVersion(version))
-                versions[version] = href
-            except ValueError:
-                pass
-
+    try:
+        versions['lts'] = {}
+        versions['list'] = {}
+        data = json.loads(requests.get(nodeReleasesAddress).content)
+        for versionData in data:
+            v = Version(versionData['version'])
+            major = v.get_major_version().__str__()
+            if major not in versions['list']:
+                versions['list'][major] = []
+            versions['list'][major].append(versionData)
+            if versionData['lts']:
+                if major not in versions['lts']:
+                    versions['lts'][major] = versionData
+    except ValueError:
+        pass
+    # pprint.pprint(versions)
     return versions
     pass
 

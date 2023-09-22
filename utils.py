@@ -93,7 +93,7 @@ def strToVersion(string: str):
     def convert(incorrect_string: str):
         arr = incorrect_string.split('.')
         length = 3 - len(arr)
-        arr = arr + ['0'] * length
+        arr = arr + ['999'] * length
         return ".".join(arr)
 
     try:

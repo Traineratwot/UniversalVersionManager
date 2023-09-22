@@ -26,8 +26,6 @@ class NodeTest(unittest.TestCase):
         self.node = Node.Node()
 
     def tearDown(self):
-        if os.path.exists(PROGRAM_PATH):
-            shutil.rmtree(PROGRAM_PATH)
         pass
 
     def test_01_node(self):
