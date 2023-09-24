@@ -1,7 +1,7 @@
 import argparse
+import filecmp
 import json
 import os.path
-import pprint
 import shutil
 import sys
 
@@ -13,7 +13,7 @@ from version_parser import Version
 from abstractService import abstractService
 from config import NODE_PATH, BIN_PATH, SEP, VERBOSE
 from utils import download, addToPath, removeToPath, cmd, createSymlink, \
-    removeSymlink, strToVersion
+    removeSymlink, strToVersion, file_get_contents, file_put_contents
 
 nodeBaseAddress = "https://nodejs.org/dist/"
 nodeReleasesAddress = "https://nodejs.org/dist/index.json"
@@ -21,7 +21,7 @@ versions = {}
 
 
 class Node(abstractService):
-    """Управлене node и npm """
+    """Управление node и npm """
 
     def off(self, args: argparse.Namespace):
         removeSymlink(BIN_PATH + 'node')
@@ -77,6 +77,14 @@ class Node(abstractService):
                 target_dir=BIN_PATH + 'node',
                 source_dir=path
             )
+            if os.path.exists(NODE_PATH + "global.package"):
+                if not os.path.exists(path + "global.package") or not filecmp.cmp(NODE_PATH + "global.package", path + "global.package"):
+                    packages = set(file_get_contents(NODE_PATH + "global.package").split("\n"))
+                    packages_old = set(file_get_contents(path + "global.package").split("\n"))
+                    diff = packages - packages_old
+                    for package in diff:
+                        os.system(f"npm install -g {package}")
+                    shutil.copyfile(NODE_PATH + "global.package", path + "global.package")
             return printCurrentVersions()
         else:
             return printCurrentVersions()
@@ -142,6 +150,27 @@ class Node(abstractService):
             for lts in _versions['lts']:
                 my_table.add_row([_versions['lts'][lts]['version'], True])
         return my_table
+        pass
+
+    def addGlobal(self, args: argparse.Namespace):
+        package = args.version
+        print(f"npm install -g {package}")
+        code = os.system(f"npm install -g {package}")
+        if code == 0:
+            packages = set()
+            if os.path.exists(NODE_PATH + "global.package"):
+                packages = file_get_contents(NODE_PATH + "global.package")
+                packages = set(packages.split("\n"))
+            packages.add(package)
+            file_put_contents(NODE_PATH + "global.package", "\n".join(packages))
+            file_put_contents(BIN_PATH + "node/" + "global.package", "\n".join(packages))
+        return "ok"
+        pass
+
+    def customCallByName(self, func_name: str, args: argparse.Namespace | object):
+        match func_name:
+            case 'addGlobal':
+                return self.addGlobal(args)
         pass
 
 

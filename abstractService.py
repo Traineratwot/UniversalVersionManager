@@ -38,6 +38,10 @@ class abstractService(ABC):
     def setup(self):
         pass
 
+    def customCallByName(self, func_name: str, args: argparse.Namespace | object):
+        return 'error'
+        pass
+
     def callByName(self, func_name: str, args: argparse.Namespace | object):
         match func_name:
             case 'use':
@@ -55,7 +59,7 @@ class abstractService(ABC):
             case 'off':
                 return self.off(args)
             case _:
-                print("error")
+                return self.customCallByName(func_name, args)
         pass
 
         pass
