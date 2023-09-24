@@ -82,10 +82,10 @@ class Node(AbstractService):
             saveUse('node', v['version'])
             if os.path.exists(NODE_PATH + "global.package"):
                 if not os.path.exists(path + "global.package") or not filecmp.cmp(NODE_PATH + "global.package", path + "global.package"):
-                    packages = set(file_get_contents(NODE_PATH + "global.package").split("\n"))
+                    packages = set(file_get_contents(NODE_PATH + "global.package").strip().split("\n"))
                     packages_old = set()
                     if os.path.exists(path + "global.package"):
-                        packages_old = set(file_get_contents(path + "global.package").split("\n"))
+                        packages_old = set(file_get_contents(path + "global.package").strip().split("\n"))
                     diff = packages - packages_old
                     for package in diff:
                         os.system(f"npm install -g {package}")
@@ -175,7 +175,7 @@ class Node(AbstractService):
         packageList = set(args.version.split(" "))
         packages = set()
         if os.path.exists(NODE_PATH + "global.package"):
-            packages = file_get_contents(NODE_PATH + "global.package")
+            packages = file_get_contents(NODE_PATH + "global.package").strip()
             packages = set(packages.split("\n"))
         for package in packageList:
             print(f"npm install -g {package}")
