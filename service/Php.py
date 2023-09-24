@@ -7,19 +7,20 @@ import sys
 import questionary
 import requests
 from bs4 import BeautifulSoup
+from cache_to_disk import cache_to_disk
 from prettytable import PrettyTable
 from version_parser import Version
 
 from AbstractService import AbstractService
 from Arguments import Arguments
 from config import VERBOSE, PHP_PATH, BIN_PATH, SEP
-from utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath
+from utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, getUsed
 
 phpBaseAddress = "https://windows.php.net/downloads/releases/"
 
 
 class Php(AbstractService):
-    """Управление php и composer"""
+    """Управление php"""
 
     def setup(self):
         if not os.path.exists(PHP_PATH):
@@ -81,17 +82,42 @@ class Php(AbstractService):
         pass
 
     def list(self, args: Arguments):
+        dirs = os.scandir(PHP_PATH)
+        my_table = PrettyTable()
+        my_table.add_column("Version", "")
+        current = getUsed('php')
+        print(current)
+        for dirObject in dirs:
+            try:
+                v = Version(dirObject.name)
+                if v.__str__() == current:
+                    my_table.add_row([f"({v})"])
+                else:
+                    my_table.add_row([v])
+            except ValueError:
+                pass
+        return my_table
         pass
 
     def install(self, args: Arguments):
         v = getPhpVersionFromUserRequest(args)
         if v:
-            print(v['link'])
             download(filename=PHP_PATH + v['version'], url=v['link'], kind='zip')
         return 'install'
         pass
 
     def remove(self, args: Arguments):
+        path = self.path(args)
+        if path:
+            answer = True
+            if not VERBOSE:
+                q = questionary.confirm(f"Delete this '{path}' ?")
+                answer = q.ask()
+            if answer:
+                shutil.rmtree(path)
+                return f'removed {path}'
+            return 'canceled'
+        return 'already removed'
         pass
 
     def path(self, args: Arguments):
@@ -106,9 +132,7 @@ class Php(AbstractService):
 
 def printCurrentPhpVersions():
     php = cmd("php -v")
-    composer = cmd("composer -v")
-    return f"""{'Now used php ' + php[0] if len(php) >= 1 else "php use error"}
-    {'Now used composer ' + composer[0] if len(composer) >= 1 else "php use error"}"""
+    return f"""{'Now used php: ' + php[0] if len(php) >= 1 else "php use error"}"""
     pass
 
 
@@ -173,6 +197,7 @@ def getPhpVersionFromUserRequest(args: Arguments):
     pass
 
 
+@cache_to_disk(1)
 def getPhpVersions():
     versions = {}
     regex = r"^ts-(.{4})-x(86|64)$"

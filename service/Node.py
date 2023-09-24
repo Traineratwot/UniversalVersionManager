@@ -172,15 +172,16 @@ class Node(AbstractService):
         pass
 
     def addGlobal(self, args: Arguments):
-        package = args.version
-        print(f"npm install -g {package}")
-        code = os.system(f"npm install -g {package}")
-        if code == 0:
-            packages = set()
-            if os.path.exists(NODE_PATH + "global.package"):
-                packages = file_get_contents(NODE_PATH + "global.package")
-                packages = set(packages.split("\n"))
-            packages.add(package)
+        packageList = set(args.version.split(" "))
+        packages = set()
+        if os.path.exists(NODE_PATH + "global.package"):
+            packages = file_get_contents(NODE_PATH + "global.package")
+            packages = set(packages.split("\n"))
+        for package in packageList:
+            print(f"npm install -g {package}")
+            code = os.system(f"npm install -g {package}")
+            if code == 0:
+                packages.add(package)
             file_put_contents(NODE_PATH + "global.package", "\n".join(packages))
             file_put_contents(BIN_PATH + "node/" + "global.package", "\n".join(packages))
         return "ok"
