@@ -7,7 +7,7 @@ from termcolor import colored
 
 from config import PROGRAM_PATH, SEP
 from service import Node
-from service.Node import getVersions
+from service.Node import getNodeVersions
 from utils import cmd
 from uvm import install
 
@@ -51,7 +51,7 @@ class NodeTest(unittest.TestCase):
         self.assertFalse(os.path.exists(PROGRAM_PATH + "node" + SEP + "20.7.0"))
 
     def test_05_getVerions(self):
-        v = getVersions()
+        v = getNodeVersions()
         pprint.pprint(v)
 
 

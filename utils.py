@@ -15,15 +15,6 @@ def download(url, filename, kind="file"):
     return d(url, filename, progressbar=True, replace=False, kind=kind, verbose=VERBOSE)
 
 
-def find_max_version(input_string, versions):
-    max_version = None
-    for version in versions:
-        if version.startswith(input_string):
-            if max_version is None or version >= max_version:
-                max_version = version
-    return max_version
-
-
 def file_put_contents(file_path, content):
     with open(file_path, 'w') as file:
         file.write(content)

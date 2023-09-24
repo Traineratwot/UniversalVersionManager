@@ -66,7 +66,7 @@ class Node(AbstractService):
 
     def use(self, args: Arguments):
         if args.version:
-            v = getVersionFromUserRequest(args)
+            v = getNodeVersionFromUserRequest(args)
             path = self.path(args)
             if not path:
                 self.install(args)
@@ -90,9 +90,9 @@ class Node(AbstractService):
                     for package in diff:
                         os.system(f"npm install -g {package}")
                     shutil.copyfile(NODE_PATH + "global.package", path + "global.package")
-            return printCurrentVersions()
+            return printCurrentNodeVersions()
         else:
-            return printCurrentVersions()
+            return printCurrentNodeVersions()
         pass
 
     def list(self, args: Arguments):
@@ -115,7 +115,7 @@ class Node(AbstractService):
 
     def install(self, args: Arguments):
         is_64bits = sys.maxsize > 2 ** 32
-        v = getVersionFromUserRequest(args)
+        v = getNodeVersionFromUserRequest(args)
         name = f"node-{v['version']}-win-x{64 if is_64bits else 86}"
         href = nodeBaseAddress + v['version'] + "/" + name + ".zip"
         # Скачивает node
@@ -142,7 +142,7 @@ class Node(AbstractService):
     def path(self, args: Arguments):
         if not args.version:
             return "need version"
-        v = getVersionFromUserRequest(args)
+        v = getNodeVersionFromUserRequest(args)
         folder = NODE_PATH + v['version'] + os.path.sep
         if os.path.exists(folder):
             with os.scandir(folder) as it:
@@ -155,19 +155,19 @@ class Node(AbstractService):
         pass
 
     def search(self, args: Arguments):
-        _versions = getVersions()
+        versions = getNodeVersions()
         my_table = PrettyTable()
         my_table.add_column("version", '')
         my_table.add_column("lts", '')
         if args.version:
             m = Version(strToVersion(args.version)).get_major_version().__str__()
-            if m in _versions['list']:
-                for version in _versions['list'][m]:
+            if m in versions['list']:
+                for version in versions['list'][m]:
                     if args.version in version['version']:
                         my_table.add_row([version['version'], version['lts']])
         else:
-            for lts in _versions['lts']:
-                my_table.add_row([_versions['lts'][lts]['version'], True])
+            for lts in versions['lts']:
+                my_table.add_row([versions['lts'][lts]['version'], True])
         return my_table
         pass
 
@@ -194,14 +194,16 @@ class Node(AbstractService):
 
 
 @cached(cache)
-def getVersionFromUserRequest(args: Arguments):
-    _versions = getVersions()
+def getNodeVersionFromUserRequest(args: Arguments):
+    versions = getNodeVersions()
     version = Version(strToVersion(args.version))
     userMajor = version.get_major_version()
     userMinor = version.get_minor_version()
     userBuild = version.get_build_version()
     founded = None
-    for version in _versions['list'][userMajor.__str__()]:
+    if userMajor.__str__() not in versions['list']:
+        raise Exception(f"Unknown Major version: {userMajor.__str__()}")
+    for version in versions['list'][userMajor.__str__()]:
         v = Version(version['version'])
         listMajor = v.get_major_version()
         listMinor = v.get_minor_version()
@@ -211,7 +213,7 @@ def getVersionFromUserRequest(args: Arguments):
     if founded:
         return founded
     else:
-        for version in _versions['list'][userMajor.__str__()]:
+        for version in versions['list'][userMajor.__str__()]:
             v = Version(version['version'])
             listMajor = v.get_major_version()
             listMinor = v.get_minor_version()
@@ -220,7 +222,7 @@ def getVersionFromUserRequest(args: Arguments):
     if founded:
         return founded
     else:
-        for version in _versions['list'][userMajor.__str__()]:
+        for version in versions['list'][userMajor.__str__()]:
             v = Version(version['version'])
             listMajor = v.get_major_version()
             if listMajor == userMajor and version['lts']:
@@ -228,7 +230,7 @@ def getVersionFromUserRequest(args: Arguments):
     if founded:
         return founded
     else:
-        for version in _versions['list'][userMajor.__str__()]:
+        for version in versions['list'][userMajor.__str__()]:
             v = Version(version['version'])
             listMajor = v.get_major_version()
             if listMajor == userMajor:
@@ -237,7 +239,7 @@ def getVersionFromUserRequest(args: Arguments):
 
 
 @cache_to_disk(1)
-def getVersions():
+def getNodeVersions():
     versions = {}
     try:
         versions['lts'] = {}
@@ -261,7 +263,7 @@ def getVersions():
     pass
 
 
-def printCurrentVersions():
+def printCurrentNodeVersions():
     node = cmd("node -v")
     npm = cmd("npm -v")
     return f"""{'Now used node ' + node[0] if len(node) >= 1 else "node use error"}

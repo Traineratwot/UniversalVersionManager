@@ -5,8 +5,6 @@ from termcolor import colored
 
 from Arguments import Arguments
 from config import PROGRAM_PATH, BIN_PATH, TO_PATH_PATH
-from service.Node import Node
-from service.Php import Php
 from utils import download
 
 TEST = False
@@ -23,8 +21,10 @@ def route(args_: argparse.Namespace):
     args2 = Arguments(args_)
     match args2.service:
         case 'node':
+            from service.Node import Node
             print(Node().callByName(args2.action, Arguments(args2)))
         case 'php':
+            from service.Php import Php
             print(Php().callByName(args2.action, Arguments(args2)))
             pass
         case 'python':
