@@ -3,8 +3,10 @@ import os
 
 from termcolor import colored
 
+from Arguments import Arguments
 from config import PROGRAM_PATH, BIN_PATH, TO_PATH_PATH
-from service import Node
+from service.Node import Node
+from service.Php import Php
 from utils import download
 
 TEST = False
@@ -17,11 +19,13 @@ def install():
              url="https://github.com/Traineratwot/toPath/releases/download/1.2.0/toPath.exe")
 
 
-def route(args2: argparse.Namespace):
+def route(args_: argparse.Namespace):
+    args2 = Arguments(args_)
     match args2.service:
         case 'node':
-            print(Node.Node().callByName(args2.action, args2))
+            print(Node().callByName(args2.action, Arguments(args2)))
         case 'php':
+            print(Php().callByName(args2.action, Arguments(args2)))
             pass
         case 'python':
             pass

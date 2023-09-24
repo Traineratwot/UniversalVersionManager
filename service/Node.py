@@ -1,4 +1,3 @@
-import argparse
 import filecmp
 import json
 import os.path
@@ -7,23 +6,25 @@ import sys
 
 import questionary
 import requests
+from cache_to_disk import cache_to_disk
+from cachetools import cached
 from prettytable import PrettyTable
 from version_parser import Version
 
-from abstractService import abstractService
-from config import NODE_PATH, BIN_PATH, SEP, VERBOSE
+from AbstractService import AbstractService
+from Arguments import Arguments
+from config import NODE_PATH, BIN_PATH, SEP, VERBOSE, cache
 from utils import download, addToPath, removeToPath, cmd, createSymlink, \
-    removeSymlink, strToVersion, file_get_contents, file_put_contents
+    removeSymlink, strToVersion, file_get_contents, file_put_contents, saveUse, getUsed
 
 nodeBaseAddress = "https://nodejs.org/dist/"
 nodeReleasesAddress = "https://nodejs.org/dist/index.json"
-versions = {}
 
 
-class Node(abstractService):
+class Node(AbstractService):
     """Управление node и npm """
 
-    def off(self, args: argparse.Namespace):
+    def off(self, args: Arguments):
         removeSymlink(BIN_PATH + 'node')
 
     def setup(self):
@@ -63,8 +64,9 @@ class Node(abstractService):
 
         pass
 
-    def use(self, args: argparse.Namespace):
+    def use(self, args: Arguments):
         if args.version:
+            v = getVersionFromUserRequest(args)
             path = self.path(args)
             if not path:
                 self.install(args)
@@ -77,10 +79,13 @@ class Node(abstractService):
                 target_dir=BIN_PATH + 'node',
                 source_dir=path
             )
+            saveUse('node', v['version'])
             if os.path.exists(NODE_PATH + "global.package"):
                 if not os.path.exists(path + "global.package") or not filecmp.cmp(NODE_PATH + "global.package", path + "global.package"):
                     packages = set(file_get_contents(NODE_PATH + "global.package").split("\n"))
-                    packages_old = set(file_get_contents(path + "global.package").split("\n"))
+                    packages_old = set()
+                    if os.path.exists(path + "global.package"):
+                        packages_old = set(file_get_contents(path + "global.package").split("\n"))
                     diff = packages - packages_old
                     for package in diff:
                         os.system(f"npm install -g {package}")
@@ -90,11 +95,25 @@ class Node(abstractService):
             return printCurrentVersions()
         pass
 
-    def list(self, args: argparse.Namespace):
-        return 'list'
+    def list(self, args: Arguments):
+        dirs = os.scandir(NODE_PATH)
+        my_table = PrettyTable()
+        my_table.add_column("Version", "")
+        current = getUsed('node')
+        print(current)
+        for dirObject in dirs:
+            try:
+                v = Version(dirObject.name)
+                if v.__str__() == current:
+                    my_table.add_row([f"({v})"])
+                else:
+                    my_table.add_row([v])
+            except ValueError:
+                pass
+        return my_table
         pass
 
-    def install(self, args: argparse.Namespace):
+    def install(self, args: Arguments):
         is_64bits = sys.maxsize > 2 ** 32
         v = getVersionFromUserRequest(args)
         name = f"node-{v['version']}-win-x{64 if is_64bits else 86}"
@@ -105,7 +124,7 @@ class Node(abstractService):
         return 'install'
         pass
 
-    def remove(self, args: argparse.Namespace):
+    def remove(self, args: Arguments):
         path = self.path(args)
         if path:
             path = os.path.dirname(os.path.dirname(path))
@@ -120,9 +139,9 @@ class Node(abstractService):
         return 'already removed'
         pass
 
-    def path(self, args: argparse.Namespace):
+    def path(self, args: Arguments):
         if not args.version:
-            raise "need version"
+            return "need version"
         v = getVersionFromUserRequest(args)
         folder = NODE_PATH + v['version'] + os.path.sep
         if os.path.exists(folder):
@@ -135,7 +154,7 @@ class Node(abstractService):
         return None
         pass
 
-    def search(self, args: argparse.Namespace):
+    def search(self, args: Arguments):
         _versions = getVersions()
         my_table = PrettyTable()
         my_table.add_column("version", '')
@@ -152,7 +171,7 @@ class Node(abstractService):
         return my_table
         pass
 
-    def addGlobal(self, args: argparse.Namespace):
+    def addGlobal(self, args: Arguments):
         package = args.version
         print(f"npm install -g {package}")
         code = os.system(f"npm install -g {package}")
@@ -167,14 +186,15 @@ class Node(abstractService):
         return "ok"
         pass
 
-    def customCallByName(self, func_name: str, args: argparse.Namespace | object):
+    def customCallByName(self, func_name: str, args: Arguments | object):
         match func_name:
             case 'addGlobal':
                 return self.addGlobal(args)
         pass
 
 
-def getVersionFromUserRequest(args: argparse.Namespace):
+@cached(cache)
+def getVersionFromUserRequest(args: Arguments):
     _versions = getVersions()
     version = Version(strToVersion(args.version))
     userMajor = version.get_major_version()
@@ -216,12 +236,14 @@ def getVersionFromUserRequest(args: argparse.Namespace):
     pass
 
 
+@cache_to_disk(1)
 def getVersions():
-    if len(versions.keys()) > 0:
-        return versions
+    versions = {}
     try:
         versions['lts'] = {}
         versions['list'] = {}
+        if VERBOSE:
+            print(f"Load data from {nodeReleasesAddress}")
         data = json.loads(requests.get(nodeReleasesAddress).content)
         for versionData in data:
             v = Version(versionData['version'])

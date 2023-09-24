@@ -1,10 +1,11 @@
+import json
 import os
 import subprocess
 
 from download import download as d
 from version_parser import Version, VersionType
 
-from config import TO_PATH_PATH, SEP, VERBOSE
+from config import TO_PATH_PATH, SEP, VERBOSE, BIN_PATH
 
 
 # import re
@@ -103,3 +104,18 @@ def strToVersion(string: str):
     except ValueError:
         string = convert(string)
     return Version(string).__str__()
+
+
+def saveUse(service, version):
+    save = {}
+    if os.path.exists(BIN_PATH + "current.json"):
+        save = json.loads(file_get_contents(BIN_PATH + "current.json"))
+    save[service] = version
+    file_put_contents(BIN_PATH + "current.json", json.dumps(save))
+
+
+def getUsed(service):
+    save = {}
+    if os.path.exists(BIN_PATH + "current.json"):
+        save = json.loads(file_get_contents(BIN_PATH + "current.json"))
+    return save[service]

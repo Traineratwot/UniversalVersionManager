@@ -1,6 +1,10 @@
 import os
 import sys
 
+from cachetools import TTLCache
+
+cache = TTLCache(maxsize=100, ttl=60)
+
 SEP = os.path.sep
 
 PROGRAM_PATH = os.environ['APPDATA'] + SEP + 'UVM' + SEP

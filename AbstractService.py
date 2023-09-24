@@ -1,48 +1,49 @@
-import argparse
 from abc import ABC, abstractmethod
 
+from Arguments import Arguments
 
-class abstractService(ABC):
+
+class AbstractService(ABC):
     def __init__(self):
         self.setup()
 
     @abstractmethod
-    def use(self, args: argparse.Namespace):
+    def use(self, args: Arguments):
         pass
 
     @abstractmethod
-    def off(self, args: argparse.Namespace):
+    def off(self, args: Arguments):
         pass
 
     @abstractmethod
-    def list(self, args: argparse.Namespace):
+    def list(self, args: Arguments):
         pass
 
     @abstractmethod
-    def install(self, args: argparse.Namespace):
+    def install(self, args: Arguments):
         pass
 
     @abstractmethod
-    def remove(self, args: argparse.Namespace):
+    def remove(self, args: Arguments):
         pass
 
     @abstractmethod
-    def path(self, args: argparse.Namespace):
+    def path(self, args: Arguments):
         pass
 
     @abstractmethod
-    def search(self, args: argparse.Namespace):
+    def search(self, args: Arguments):
         pass
 
     @abstractmethod
     def setup(self):
         pass
 
-    def customCallByName(self, func_name: str, args: argparse.Namespace | object):
+    def customCallByName(self, func_name: str, args: Arguments):
         return 'error'
         pass
 
-    def callByName(self, func_name: str, args: argparse.Namespace | object):
+    def callByName(self, func_name: str, args: Arguments):
         match func_name:
             case 'use':
                 return self.use(args)
