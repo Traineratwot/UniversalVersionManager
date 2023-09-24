@@ -2,4 +2,4 @@ from version_parser import Version
 
 from utils import strToVersion
 
-print(Version(strToVersion('20.1')) > Version(strToVersion('19.9.8')))
+print(Version(strToVersion('20')) > Version(strToVersion('20.9.8')))

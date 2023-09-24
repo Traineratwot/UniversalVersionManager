@@ -1,4 +1,5 @@
 import os.path
+import pprint
 import shutil
 import unittest
 
@@ -31,7 +32,7 @@ class NodeTest(unittest.TestCase):
     def test_01_node(self):
         print(colored('install', 'green'))
         self.node.callByName("install", self.args)
-        self.assertTrue(os.path.exists(PROGRAM_PATH + "node" + SEP + "20.7.0"))
+        self.assertTrue(os.path.exists(PROGRAM_PATH + "node" + SEP + "v20.7.0"))
 
     def test_02_node(self):
         print(colored('use', 'green'))
@@ -51,7 +52,7 @@ class NodeTest(unittest.TestCase):
 
     def test_05_getVerions(self):
         v = getVersions()
-        print(v)
+        pprint.pprint(v)
 
 
 if __name__ == '__main__':
