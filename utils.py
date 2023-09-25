@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+from os.path import exists, join
 
 from download import download as d
 from version_parser import Version, VersionType
@@ -47,17 +48,6 @@ def cmd(command, verbose=False):
     return result.stdout.strip("\n").split('\n') if result.stdout else []
 
 
-def getVersion(command, verbose=VERBOSE):
-    try:
-        output = subprocess.check_output(command)
-        version = output.decode().strip()
-        return version
-    except subprocess.CalledProcessError as e:
-        if verbose:
-            print(f"Ошибка при получении версии Node.js: {e.output.decode().strip()}")
-        return None
-
-
 def createSymlink(source_dir, target_dir, verbose=VERBOSE):
     try:
         os.symlink(source_dir, target_dir)
@@ -99,14 +89,16 @@ def strToVersion(string: str):
 
 def saveUse(service, version):
     save = {}
-    if os.path.exists(BIN_PATH + "current.json"):
-        save = json.loads(file_get_contents(BIN_PATH + "current.json"))
+    path = join(BIN_PATH, "current.json")
+    if exists(path):
+        save = json.loads(file_get_contents(path))
     save[service] = version
-    file_put_contents(BIN_PATH + "current.json", json.dumps(save))
+    file_put_contents(path, json.dumps(save))
 
 
 def getUsed(service):
     save = {}
-    if os.path.exists(BIN_PATH + "current.json"):
-        save = json.loads(file_get_contents(BIN_PATH + "current.json"))
+    path = join(BIN_PATH, "current.json")
+    if exists(path):
+        save = json.loads(file_get_contents(path))
     return save[service]

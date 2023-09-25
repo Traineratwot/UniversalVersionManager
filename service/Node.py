@@ -4,6 +4,7 @@ import os.path
 import shutil
 import sys
 from functools import cache
+from os.path import exists, join
 
 import questionary
 import requests
@@ -13,7 +14,7 @@ from version_parser import Version
 
 from AbstractService import AbstractService
 from Arguments import Arguments
-from config import NODE_PATH, BIN_PATH, SEP, VERBOSE, CACHE
+from config import NODE_PATH, BIN_PATH, VERBOSE, CACHE
 from utils import download, addToPath, removeToPath, cmd, createSymlink, \
     removeSymlink, strToVersion, file_get_contents, file_put_contents, saveUse, getUsed
 
@@ -25,10 +26,10 @@ class Node(AbstractService):
     """Управление node и npm """
 
     def off(self, args: Arguments):
-        removeSymlink(BIN_PATH + 'node')
+        removeSymlink(join(BIN_PATH, 'node'))
 
     def setup(self):
-        nodeBin = BIN_PATH + 'node' + SEP + 'node.exe'
+        nodeBin = join(BIN_PATH, 'node', 'node.exe')
         # Настройка Path
         allNodes = cmd("where node")
         if len(allNodes) > 1 or (len(allNodes) == 1 and allNodes[0] != nodeBin):
@@ -49,16 +50,16 @@ class Node(AbstractService):
                     os.system("nvm off")
                     allNodes = cmd("where node")
                 for item in allNodes:
-                    if item != BIN_PATH + 'node':
+                    if item != join(BIN_PATH, 'node'):
                         removeToPath(os.path.dirname(item))
                     pass
-                addToPath(BIN_PATH + 'node')
+                addToPath(join(BIN_PATH, 'node'))
             else:
                 exit(1)
                 pass
             pass
         else:
-            addToPath(BIN_PATH + 'node')
+            addToPath(join(BIN_PATH, 'node'))
             pass
         # Настройка bin
 
@@ -74,22 +75,22 @@ class Node(AbstractService):
             path = self.path(args)
             if not path:
                 return 'error'
-            removeSymlink(BIN_PATH + 'node')
+            removeSymlink(join(BIN_PATH, 'node'))
             createSymlink(
-                target_dir=BIN_PATH + 'node',
+                target_dir=join(BIN_PATH, 'node'),
                 source_dir=path
             )
             saveUse('node', v['version'])
-            if os.path.exists(NODE_PATH + "global.package"):
-                if not os.path.exists(path + "global.package") or not filecmp.cmp(NODE_PATH + "global.package", path + "global.package"):
-                    packages = set(file_get_contents(NODE_PATH + "global.package").strip().split("\n"))
+            if exists(join(NODE_PATH, "global.package")):
+                if not exists(join(path, "global.package")) or not filecmp.cmp(join(NODE_PATH, "global.package"), join(path, "global.package")):
+                    packages = set(file_get_contents(join(NODE_PATH, "global.package")).strip().split("\n"))
                     packages_old = set()
-                    if os.path.exists(path + "global.package"):
-                        packages_old = set(file_get_contents(path + "global.package").strip().split("\n"))
+                    if exists(join(path, "global.package")):
+                        packages_old = set(file_get_contents(join(path, "global.package")).strip().split("\n"))
                     diff = packages - packages_old
                     for package in diff:
                         os.system(f"npm install -g {package}")
-                    shutil.copyfile(NODE_PATH + "global.package", path + "global.package")
+                    shutil.copyfile(join(NODE_PATH, "global.package"), join(path, "global.package"))
             return printCurrentNodeVersions()
         else:
             return printCurrentNodeVersions()
@@ -119,7 +120,7 @@ class Node(AbstractService):
         name = f"node-{v['version']}-win-x{64 if is_64bits else 86}"
         href = nodeBaseAddress + v['version'] + "/" + name + ".zip"
         # Скачивает node
-        download(filename=NODE_PATH + v['version'], url=href, kind='zip')
+        download(filename=join(NODE_PATH, v['version']), url=href, kind='zip')
 
         return 'install'
         pass
@@ -143,14 +144,14 @@ class Node(AbstractService):
         if not args.version:
             return "need version"
         v = getNodeVersionFromUserRequest(args)
-        folder = NODE_PATH + v['version'] + os.path.sep
-        if os.path.exists(folder):
+        folder = join(NODE_PATH, v['version'])
+        if exists(folder):
             with os.scandir(folder) as it:
                 for entry in it:
                     if not entry.name.startswith('.'):
-                        folder = folder + entry.name
+                        folder = join(folder, entry.name)
                         break
-            return folder + os.path.sep
+            return folder
         return None
         pass
 
@@ -174,16 +175,16 @@ class Node(AbstractService):
     def addGlobal(self, args: Arguments):
         packageList = set(args.version.split(" "))
         packages = set()
-        if os.path.exists(NODE_PATH + "global.package"):
-            packages = file_get_contents(NODE_PATH + "global.package").strip()
+        if exists(join(NODE_PATH, "global.package")):
+            packages = file_get_contents(join(NODE_PATH, "global.package")).strip()
             packages = set(packages.split("\n"))
         for package in packageList:
             print(f"npm install -g {package}")
             code = os.system(f"npm install -g {package}")
             if code == 0:
                 packages.add(package)
-            file_put_contents(NODE_PATH + "global.package", "\n".join(packages))
-            file_put_contents(BIN_PATH + "node/" + "global.package", "\n".join(packages))
+            file_put_contents(join(NODE_PATH, "global.package"), "\n".join(packages))
+            file_put_contents(join(BIN_PATH, "node", "global.package"), "\n".join(packages))
         return "ok"
         pass
 

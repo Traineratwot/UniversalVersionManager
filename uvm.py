@@ -4,15 +4,18 @@ import os
 from termcolor import colored
 
 from Arguments import Arguments
-from config import PROGRAM_PATH, BIN_PATH, TO_PATH_PATH
+from config import PROGRAM_PATH, BIN_PATH, TO_PATH_PATH, NODE_PATH, PHP_PATH, CACHE_PATH
 from utils import download
 
 TEST = False
 
 
 def install():
-    os.mkdir(PROGRAM_PATH)
-    os.mkdir(BIN_PATH)
+    os.makedirs(PROGRAM_PATH, exist_ok=True)
+    os.makedirs(NODE_PATH, exist_ok=True)
+    os.makedirs(PHP_PATH, exist_ok=True)
+    os.makedirs(BIN_PATH, exist_ok=True)
+    os.makedirs(CACHE_PATH, exist_ok=True)
     download(filename=TO_PATH_PATH,
              url="https://github.com/Traineratwot/toPath/releases/download/1.2.0/toPath.exe")
 
