@@ -3,17 +3,17 @@ import json
 import os.path
 import shutil
 import sys
+from functools import cache
 
 import questionary
 import requests
-from cache_to_disk import cache_to_disk
-from cachetools import cached
+from SimpleCache2 import simple_cache
 from prettytable import PrettyTable
 from version_parser import Version
 
 from AbstractService import AbstractService
 from Arguments import Arguments
-from config import NODE_PATH, BIN_PATH, SEP, VERBOSE, cache
+from config import NODE_PATH, BIN_PATH, SEP, VERBOSE, CACHE
 from utils import download, addToPath, removeToPath, cmd, createSymlink, \
     removeSymlink, strToVersion, file_get_contents, file_put_contents, saveUse, getUsed
 
@@ -194,7 +194,7 @@ class Node(AbstractService):
         pass
 
 
-@cached(cache)
+@cache
 def getNodeVersionFromUserRequest(args: Arguments):
     versions = getNodeVersions()
     version = Version(strToVersion(args.version))
@@ -239,7 +239,7 @@ def getNodeVersionFromUserRequest(args: Arguments):
     pass
 
 
-@cache_to_disk(1)
+@simple_cache(CACHE, 3600, "node")
 def getNodeVersions():
     versions = {}
     try:

@@ -1,4 +1,4 @@
-import json
+import os
 import os
 import pprint
 import shutil
@@ -7,8 +7,7 @@ import unittest
 from termcolor import colored
 
 from config import PROGRAM_PATH, SEP
-from service.Php import Php, getPhpVersions, getPhpVersionFromUserRequest
-from utils import file_put_contents
+from service.Php import Php, getPhpVersionFromUserRequest
 from uvm import install
 
 

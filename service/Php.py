@@ -6,14 +6,14 @@ import sys
 
 import questionary
 import requests
+from SimpleCache2 import simple_cache
 from bs4 import BeautifulSoup
-from cache_to_disk import cache_to_disk
 from prettytable import PrettyTable
 from version_parser import Version
 
 from AbstractService import AbstractService
 from Arguments import Arguments
-from config import VERBOSE, PHP_PATH, BIN_PATH, SEP
+from config import VERBOSE, PHP_PATH, BIN_PATH, SEP, CACHE
 from utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, getUsed
 
 phpBaseAddress = "https://windows.php.net/downloads/releases/"
@@ -197,7 +197,7 @@ def getPhpVersionFromUserRequest(args: Arguments):
     pass
 
 
-@cache_to_disk(1)
+@simple_cache(CACHE, 3600, "php")
 def getPhpVersions():
     versions = {}
     regex = r"^ts-(.{4})-x(86|64)$"
