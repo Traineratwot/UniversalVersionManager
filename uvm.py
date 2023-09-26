@@ -1,14 +1,11 @@
-import argparse
 import os
 
-from termcolor import colored
+from cement import App
 
-from src.Arguments import Arguments
-from src.config import PROGRAM_PATH, BIN_PATH, TO_PATH_PATH, NODE_PATH, PHP_PATH, CACHE_PATH
-from src.lang import _
+from src.cli.nodeCli import NodeCli
+from src.cli.phpСli import PhpCli
+from src.config import PROGRAM_PATH, NODE_PATH, PHP_PATH, BIN_PATH, CACHE_PATH, TO_PATH_PATH
 from src.utils import download
-
-TEST = False
 
 
 def install():
@@ -21,52 +18,17 @@ def install():
              url="https://github.com/Traineratwot/toPath/releases/download/1.2.0/toPath.exe")
 
 
-def route(args_: argparse.Namespace):
-    args2 = Arguments(args_)
-    match args2.service:
-        case 'node':
-            from src.service.Node import Node
-            print(Node().callByName(args2.action, Arguments(args2)))
-        case 'php':
-            from src.service.Php import Php
-            print(Php().callByName(args2.action, Arguments(args2)))
-            pass
-        case 'python':
-            pass
-        case _:
-            print(_("unknown") + " " + args2.service)
-    pass
+class UVM(App):
+    class Meta:
+        label = 'UVM'
+        handlers = [
+            NodeCli,
+            PhpCli,
+        ]
 
 
 if __name__ == '__main__':
     if not os.path.exists(PROGRAM_PATH):
         install()
-
-    parser = argparse.ArgumentParser(
-        prog='UVM',
-        description='Universal Version Manager',
-        epilog='Thanks for use :)'
-    )
-
-    parser.add_argument("service", choices=['node', 'php', 'python'], help=_("help.service"))
-    actions = {
-        'use': colored(_("help.select"), "light_blue"),
-        'off': colored(_("help.off"), "light_blue"),
-        'list': colored(_("help.list"), "light_blue"),
-        'install': colored(_("help.install"), "light_blue"),
-        'remove': colored(_("help.remove"), "light_blue"),
-        'path': colored(_("help.path"), "light_blue"),
-        'search': colored(_("help.search"), "light_blue"),
-        'addGlobal': colored(_("help.addGlobal"), "light_blue"),
-    }
-    _help = []
-    for h in actions:
-        _help.append(f"{h} {actions[h]}")
-    helpStr = ";\n".join(_help)
-
-    parser.add_argument("action", choices=actions.keys(), help=helpStr, metavar='Action')
-    parser.add_argument("version", default=None, nargs='?', metavar='Version', help=F"{colored(_('help.version'), 'light_blue')}")
-
-    args = parser.parse_args()
-
-    route(args)
+    with UVM() as app:
+        app.run()

@@ -110,3 +110,18 @@ def is_process_running(process_name):
         if proc.name() == process_name:
             return True
     return False
+
+
+def arg(version):
+    class Args:
+        def __init__(self):
+            self.version = version
+
+    return Args()
+
+
+def namespace_to_dist(namespace):
+    dist = {}
+    for key, value in namespace.dict.items():
+        dist[key] = value
+    return dist

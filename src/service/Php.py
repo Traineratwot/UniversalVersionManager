@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import re
@@ -12,7 +13,6 @@ from prettytable import PrettyTable
 from version_parser import Version
 
 from src.AbstractService import AbstractService
-from src.Arguments import Arguments
 from src.config import VERBOSE, PHP_PATH, BIN_PATH, SEP, CACHE
 from src.lang import _
 from src.utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, getUsed, is_process_running
@@ -71,7 +71,7 @@ class Php(AbstractService):
         return False
         pass
 
-    def use(self, args: Arguments):
+    def use(self, args):
         if args.version:
             v = getPhpVersionFromUserRequest(args)
             path = self.path(args)
@@ -91,10 +91,10 @@ class Php(AbstractService):
         pass
         pass
 
-    def off(self, args: Arguments):
+    def off(self, args):
         pass
 
-    def list(self, args: Arguments):
+    def list(self, args):
         dirs = os.scandir(PHP_PATH)
         my_table = PrettyTable()
         my_table.add_column("Version", "")
@@ -112,14 +112,14 @@ class Php(AbstractService):
         return my_table
         pass
 
-    def install(self, args: Arguments):
+    def install(self, args):
         v = getPhpVersionFromUserRequest(args)
         if v:
             download(filename=PHP_PATH + v['version'], url=v['link'], kind='zip')
         return 'install'
         pass
 
-    def remove(self, args: Arguments):
+    def remove(self, args):
         path = self.path(args)
         if path:
             answer = True
@@ -133,13 +133,13 @@ class Php(AbstractService):
         return 'already removed'
         pass
 
-    def path(self, args: Arguments):
+    def path(self, args):
         v = getPhpVersionFromUserRequest(args)
         if v:
             return PHP_PATH + v['version']
         pass
 
-    def search(self, args: Arguments):
+    def search(self, args):
         my_table = PrettyTable()
         my_table.add_column(_("arch"), '')
         my_table.add_column(_("version"), '')
@@ -181,7 +181,7 @@ def printCurrentPhpVersions():
     pass
 
 
-def getPhpVersionFromUserRequest(args: Arguments):
+def getPhpVersionFromUserRequest(args):
     versions = getPhpVersions()
     version = Version(strToVersion(args.version))
     userMajor = version.get_major_version().__str__()

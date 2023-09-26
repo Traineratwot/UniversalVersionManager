@@ -3,7 +3,7 @@ import json
 import os.path
 import shutil
 import sys
-from functools import cache
+from functools import lru_cache
 from os.path import exists, join
 
 import questionary
@@ -13,7 +13,6 @@ from prettytable import PrettyTable
 from version_parser import Version
 
 from src.AbstractService import AbstractService
-from src.Arguments import Arguments
 from src.config import NODE_PATH, BIN_PATH, VERBOSE, CACHE
 from src.lang import _
 from src.utils import download, addToPath, removeToPath, cmd, createSymlink, \
@@ -26,7 +25,7 @@ nodeReleasesAddress = "https://nodejs.org/dist/index.json"
 class Node(AbstractService):
     """Управление node и npm """
 
-    def off(self, args: Arguments):
+    def off(self, args):
         removeSymlink(join(BIN_PATH, 'node'))
 
     def setup(self):
@@ -66,7 +65,7 @@ class Node(AbstractService):
 
         pass
 
-    def use(self, args: Arguments):
+    def use(self, args):
         if args.version:
             v = getNodeVersionFromUserRequest(args)
             path = self.path(args)
@@ -97,7 +96,7 @@ class Node(AbstractService):
             return printCurrentNodeVersions()
         pass
 
-    def list(self, args: Arguments):
+    def list(self, args):
         dirs = os.scandir(NODE_PATH)
         my_table = PrettyTable()
         my_table.add_column("Version", "")
@@ -115,7 +114,7 @@ class Node(AbstractService):
         return my_table
         pass
 
-    def install(self, args: Arguments):
+    def install(self, args):
         is_64bits = sys.maxsize > 2 ** 32
         v = getNodeVersionFromUserRequest(args)
         name = f"node-{v['version']}-win-x{64 if is_64bits else 86}"
@@ -126,7 +125,7 @@ class Node(AbstractService):
         return 'install'
         pass
 
-    def remove(self, args: Arguments):
+    def remove(self, args):
         path = self.path(args)
         if path:
             path = os.path.dirname(os.path.dirname(path))
@@ -141,7 +140,7 @@ class Node(AbstractService):
         return 'already removed'
         pass
 
-    def path(self, args: Arguments):
+    def path(self, args):
         if not args.version:
             return "need version"
         v = getNodeVersionFromUserRequest(args)
@@ -156,7 +155,7 @@ class Node(AbstractService):
         return None
         pass
 
-    def search(self, args: Arguments):
+    def search(self, args):
         versions = getNodeVersions()
         my_table = PrettyTable()
         my_table.add_column(_("version"), '')
@@ -173,7 +172,7 @@ class Node(AbstractService):
         return my_table
         pass
 
-    def addGlobal(self, args: Arguments):
+    def addGlobal(self, args):
         packageList = set(args.version.split(" "))
         packages = set()
         if exists(join(NODE_PATH, "global.package")):
@@ -189,15 +188,14 @@ class Node(AbstractService):
         return "ok"
         pass
 
-    def customCallByName(self, func_name: str, args: Arguments | object):
+    def customCallByName(self, func_name: str, args):
         match func_name:
             case 'addGlobal':
                 return self.addGlobal(args)
         pass
 
 
-@cache
-def getNodeVersionFromUserRequest(args: Arguments):
+def getNodeVersionFromUserRequest(args):
     versions = getNodeVersions()
     version = Version(strToVersion(args.version))
     userMajor = version.get_major_version()

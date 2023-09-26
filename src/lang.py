@@ -3,16 +3,16 @@ import warnings
 
 lang = {
     'ru': {
-        "help.select": "Выбрать версию для использования",
+        "help.use": "Выбрать версию для использования",
         "help.off": "Отменить выбор версии",
         "help.list": "Показать все доступные версии",
         "help.install": "Установить новую версию",
         "help.remove": "Удалить версию",
         "help.path": "Получить путь к исходной папке",
         "help.search": "Показывает все версии, доступные для установки",
-        "help.addGlobal": "(node) добавить глобальный пакет во все версии, например: typescript",
+        "help.addGlobal": "Добавить глобальный пакет во все версии, например: typescript",
         "help.service": "1 из поддерживаемых приложений",
-        "help.version": "Желаемая версия",
+        "help.version": "[Опционально] Желаемая версия",
 
         "unknown": "Неизвестно",
         "lts": "Поддеживается",
@@ -22,16 +22,16 @@ lang = {
         "used": "Сейчас используестя {}: {} ",
     },
     'en': {
-        "help.select": "Select version to use",
+        "help.use": "Select version to use",
         "help.off": "Deselect version",
         "help.list": "Show all available versions",
         "help.install": "Install new version",
         "help.remove": "Remove version",
         "help.path": "get path to source folder",
         "help.search": "Shows all versions available for installation",
-        "help.addGlobal": "(node) add a global package to all versions, for example: typescript",
+        "help.addGlobal": "Add a global package to all versions, for example: typescript",
         "help.service": "1 from supported applications",
-        "help.version": "Desired version",
+        "help.version": "[Optional] Desired version",
 
         "unknown": "Unknown",
         "lts": "Lts",
