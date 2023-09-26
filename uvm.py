@@ -3,9 +3,9 @@ import os
 
 from termcolor import colored
 
-from Arguments import Arguments
-from config import PROGRAM_PATH, BIN_PATH, TO_PATH_PATH, NODE_PATH, PHP_PATH, CACHE_PATH
-from utils import download
+from src.Arguments import Arguments
+from src.config import PROGRAM_PATH, BIN_PATH, TO_PATH_PATH, NODE_PATH, PHP_PATH, CACHE_PATH
+from src.utils import download
 
 TEST = False
 
@@ -24,10 +24,10 @@ def route(args_: argparse.Namespace):
     args2 = Arguments(args_)
     match args2.service:
         case 'node':
-            from service.Node import Node
+            from src.service.Node import Node
             print(Node().callByName(args2.action, Arguments(args2)))
         case 'php':
-            from service.Php import Php
+            from src.service.Php import Php
             print(Php().callByName(args2.action, Arguments(args2)))
             pass
         case 'python':

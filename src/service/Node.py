@@ -12,10 +12,10 @@ from SimpleCache2 import simple_cache
 from prettytable import PrettyTable
 from version_parser import Version
 
-from AbstractService import AbstractService
-from Arguments import Arguments
-from config import NODE_PATH, BIN_PATH, VERBOSE, CACHE
-from utils import download, addToPath, removeToPath, cmd, createSymlink, \
+from src.AbstractService import AbstractService
+from src.Arguments import Arguments
+from src.config import NODE_PATH, BIN_PATH, VERBOSE, CACHE
+from src.utils import download, addToPath, removeToPath, cmd, createSymlink, \
     removeSymlink, strToVersion, file_get_contents, file_put_contents, saveUse, getUsed
 
 nodeBaseAddress = "https://nodejs.org/dist/"

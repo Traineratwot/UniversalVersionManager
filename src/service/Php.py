@@ -11,10 +11,10 @@ from bs4 import BeautifulSoup
 from prettytable import PrettyTable
 from version_parser import Version
 
-from AbstractService import AbstractService
-from Arguments import Arguments
-from config import VERBOSE, PHP_PATH, BIN_PATH, SEP, CACHE
-from utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, getUsed, is_process_running
+from src.AbstractService import AbstractService
+from src.Arguments import Arguments
+from src.config import VERBOSE, PHP_PATH, BIN_PATH, SEP, CACHE
+from src.utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, getUsed, is_process_running
 
 phpBaseAddress = "https://windows.php.net/downloads/releases/"
 

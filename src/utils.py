@@ -7,7 +7,7 @@ import psutil
 from download import download as d
 from version_parser import Version, VersionType
 
-from config import TO_PATH_PATH, SEP, VERBOSE, BIN_PATH
+from src.config import TO_PATH_PATH, SEP, VERBOSE, BIN_PATH
 
 
 # import re

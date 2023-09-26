@@ -5,10 +5,10 @@ from os.path import exists, join
 
 from termcolor import colored
 
-from config import PROGRAM_PATH, SEP
-from service import Node
-from service.Node import getNodeVersions
-from utils import cmd
+from src.config import PROGRAM_PATH, SEP
+from src.service import Node
+from src.service.Node import getNodeVersions
+from src.utils import cmd
 from uvm import install
 
 

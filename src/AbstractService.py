@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from Arguments import Arguments
+from src.Arguments import Arguments
 
 
 class AbstractService(ABC):
