@@ -15,6 +15,7 @@ from version_parser import Version
 from src.AbstractService import AbstractService
 from src.Arguments import Arguments
 from src.config import NODE_PATH, BIN_PATH, VERBOSE, CACHE
+from src.lang import _
 from src.utils import download, addToPath, removeToPath, cmd, createSymlink, \
     removeSymlink, strToVersion, file_get_contents, file_put_contents, saveUse, getUsed
 
@@ -158,8 +159,8 @@ class Node(AbstractService):
     def search(self, args: Arguments):
         versions = getNodeVersions()
         my_table = PrettyTable()
-        my_table.add_column("version", '')
-        my_table.add_column("lts", '')
+        my_table.add_column(_("version"), '')
+        my_table.add_column(_("lts"), '')
         if args.version:
             m = Version(strToVersion(args.version)).get_major_version().__str__()
             if m in versions['list']:
@@ -204,7 +205,7 @@ def getNodeVersionFromUserRequest(args: Arguments):
     userBuild = version.get_build_version()
     founded = None
     if userMajor.__str__() not in versions['list']:
-        raise Exception(f"Unknown Major version: {userMajor.__str__()}")
+        raise Exception(f"unknown Major version: {userMajor.__str__()}")
     for version in versions['list'][userMajor.__str__()]:
         v = Version(version['version'])
         listMajor = v.get_major_version()
@@ -268,5 +269,4 @@ def getNodeVersions():
 def printCurrentNodeVersions():
     node = cmd("node -v")
     npm = cmd("npm -v")
-    return f"""{'Now used node ' + node[0] if len(node) >= 1 else "node use error"}
-{'Now used npm ' + npm[0] if len(npm) >= 1 else "node use error"}"""
+    return _('used', 'node', node[0] if len(node) >= 1 else "node use error") + "\n" + _('used', 'npm', npm[0] if len(npm) >= 1 else "npm use error")

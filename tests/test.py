@@ -1,3 +1,4 @@
-from src.utils import is_process_running
+from src.lang import _
 
-print(is_process_running("Open Server Panel.exe"))
+print(_('test'))
+print(_('test', 154654,4845))

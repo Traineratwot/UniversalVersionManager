@@ -14,6 +14,7 @@ from version_parser import Version
 from src.AbstractService import AbstractService
 from src.Arguments import Arguments
 from src.config import VERBOSE, PHP_PATH, BIN_PATH, SEP, CACHE
+from src.lang import _
 from src.utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, getUsed, is_process_running
 
 phpBaseAddress = "https://windows.php.net/downloads/releases/"
@@ -140,9 +141,9 @@ class Php(AbstractService):
 
     def search(self, args: Arguments):
         my_table = PrettyTable()
-        my_table.add_column("arch", '')
-        my_table.add_column("version", '')
-        my_table.add_column("released", '')
+        my_table.add_column(_("arch"), '')
+        my_table.add_column(_("version"), '')
+        my_table.add_column(_("released"), '')
 
         versions = getPhpVersions()
         is_64bits = sys.maxsize > 2 ** 32
@@ -176,7 +177,7 @@ class Php(AbstractService):
 
 def printCurrentPhpVersions():
     php = cmd("php -v")
-    return f"""{'Now used php: ' + php[0] if len(php) >= 1 else "php use error"}"""
+    return _('used', 'php', php[0] if len(php) >= 1 else "php use error")
     pass
 
 

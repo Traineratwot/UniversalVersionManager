@@ -5,6 +5,7 @@ from termcolor import colored
 
 from src.Arguments import Arguments
 from src.config import PROGRAM_PATH, BIN_PATH, TO_PATH_PATH, NODE_PATH, PHP_PATH, CACHE_PATH
+from src.lang import _
 from src.utils import download
 
 TEST = False
@@ -33,7 +34,7 @@ def route(args_: argparse.Namespace):
         case 'python':
             pass
         case _:
-            print("Unknown " + args2.service)
+            print(_("unknown") + " " + args2.service)
     pass
 
 
@@ -47,16 +48,16 @@ if __name__ == '__main__':
         epilog='Thanks for use :)'
     )
 
-    parser.add_argument("service", choices=['node', 'php', 'python'])
+    parser.add_argument("service", choices=['node', 'php', 'python'], help=_("help.service"))
     actions = {
-        'use': colored("select version to use", "light_blue"),
-        'off': colored("select version to use", "light_blue"),
-        'list': colored("show all available versions", "light_blue"),
-        'install': colored("install new version", "light_blue"),
-        'remove': colored("remove version", "light_blue"),
-        'path': colored("get path to source folder", "light_blue"),
-        'search': colored("shows all versions available for installation", "light_blue"),
-        'addGlobal': colored("(node) add a global package to all versions, for example: typescript", "light_blue"),
+        'use': colored(_("help.select"), "light_blue"),
+        'off': colored(_("help.off"), "light_blue"),
+        'list': colored(_("help.list"), "light_blue"),
+        'install': colored(_("help.install"), "light_blue"),
+        'remove': colored(_("help.remove"), "light_blue"),
+        'path': colored(_("help.path"), "light_blue"),
+        'search': colored(_("help.search"), "light_blue"),
+        'addGlobal': colored(_("help.addGlobal"), "light_blue"),
     }
     _help = []
     for h in actions:
@@ -64,7 +65,7 @@ if __name__ == '__main__':
     helpStr = ";\n".join(_help)
 
     parser.add_argument("action", choices=actions.keys(), help=helpStr, metavar='Action')
-    parser.add_argument("version", default=None, nargs='?', metavar='Version', help=F"{colored('version string', 'light_blue')}")
+    parser.add_argument("version", default=None, nargs='?', metavar='Version', help=F"{colored(_('help.version'), 'light_blue')}")
 
     args = parser.parse_args()
 
