@@ -1,5 +1,3 @@
-from version_parser import Version
+from utils import is_process_running
 
-from utils import strToVersion
-
-print(Version(strToVersion('20')) > Version(strToVersion('20.9.8')))
+print(is_process_running("Open Server Panel.exe"))

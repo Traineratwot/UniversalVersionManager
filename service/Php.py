@@ -14,7 +14,7 @@ from version_parser import Version
 from AbstractService import AbstractService
 from Arguments import Arguments
 from config import VERBOSE, PHP_PATH, BIN_PATH, SEP, CACHE
-from utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, getUsed
+from utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, getUsed, is_process_running
 
 phpBaseAddress = "https://windows.php.net/downloads/releases/"
 
@@ -51,12 +51,24 @@ class Php(AbstractService):
                     pass
                 addToPath(BIN_PATH + 'php')
             else:
-                exit(1)
+                return "exit"
                 pass
             pass
         else:
             addToPath(BIN_PATH + 'php')
             pass
+
+    def OpenServer(self):
+        if self.OpenServerExits():
+            pass
+        pass
+
+    def OpenServerExits(self):
+        if is_process_running("Open Server Panel.exe"):
+            return True
+
+        return False
+        pass
 
     def use(self, args: Arguments):
         if args.version:
@@ -127,6 +139,38 @@ class Php(AbstractService):
         pass
 
     def search(self, args: Arguments):
+        my_table = PrettyTable()
+        my_table.add_column("arch", '')
+        my_table.add_column("version", '')
+        my_table.add_column("released", '')
+
+        versions = getPhpVersions()
+        is_64bits = sys.maxsize > 2 ** 32
+        m = None
+        if args.version:
+            m = Version(strToVersion(args.version))
+
+        def parse(_versions, r):
+            for arch in _versions:
+                if not is_64bits and arch == "64":
+                    continue
+                for major in _versions[arch]:
+                    if m and m.get_major_version() != 999 and m.get_major_version().__str__() != major:
+                        continue
+                    for minor in _versions[arch][major]:
+                        if m and m.get_minor_version() != 999 and m.get_minor_version().__str__() != minor:
+                            continue
+                        for build in _versions[arch][major][minor]:
+                            v = Version(f"{major}.{minor}.{build}")
+                            if m and m.get_build_version() != 999 and m.get_build_version().__str__() != build:
+                                continue
+                            my_table.add_row([arch, v, r])
+                            pass
+
+        parse(versions['releases'], True)
+        parse(versions['archived'], False)
+
+        return my_table
         pass
 
 

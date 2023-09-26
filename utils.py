@@ -3,6 +3,7 @@ import os
 import subprocess
 from os.path import exists, join
 
+import psutil
 from download import download as d
 from version_parser import Version, VersionType
 
@@ -102,3 +103,10 @@ def getUsed(service):
     if exists(path):
         save = json.loads(file_get_contents(path))
     return save[service]
+
+
+def is_process_running(process_name):
+    for proc in psutil.process_iter(['name']):
+        if proc.name() == process_name:
+            return True
+    return False

@@ -50,7 +50,7 @@ class NodeTest(unittest.TestCase):
         self.node.callByName("remove", self.args)
         self.assertFalse(exists(PROGRAM_PATH + "node" + SEP + "20.7.0"))
 
-    def test_05_getVerions(self):
+    def test_05_getVersions(self):
         v = getNodeVersions()
         pprint.pprint(v)
 
