@@ -3,7 +3,6 @@ import json
 import os.path
 import shutil
 import sys
-from functools import lru_cache
 from os.path import exists, join
 
 import questionary
@@ -13,7 +12,7 @@ from prettytable import PrettyTable
 from version_parser import Version
 
 from src.AbstractService import AbstractService
-from src.config import NODE_PATH, BIN_PATH, VERBOSE, CACHE
+from src.config import NODE_PATH, BIN_PATH, VERBOSE, CACHE, CACHE_LRU
 from src.lang import _
 from src.utils import download, addToPath, removeToPath, cmd, createSymlink, \
     removeSymlink, strToVersion, file_get_contents, file_put_contents, saveUse, getUsed
@@ -66,7 +65,7 @@ class Node(AbstractService):
         pass
 
     def use(self, args):
-        if args.version:
+        if 'version' in args and args.version:
             v = getNodeVersionFromUserRequest(args)
             path = self.path(args)
             if not path:
@@ -160,11 +159,11 @@ class Node(AbstractService):
         my_table = PrettyTable()
         my_table.add_column(_("version"), '')
         my_table.add_column(_("lts"), '')
-        if args.version:
+        if 'version' in args and args.version:
             m = Version(strToVersion(args.version)).get_major_version().__str__()
             if m in versions['list']:
                 for version in versions['list'][m]:
-                    if args.version in version['version']:
+                    if 'version' in args and args.version and args.version in version['version']:
                         my_table.add_row([version['version'], version['lts']])
         else:
             for lts in versions['lts']:
@@ -173,7 +172,7 @@ class Node(AbstractService):
         pass
 
     def addGlobal(self, args):
-        packageList = set(args.version.split(" "))
+        packageList = set(args.packages)
         packages = set()
         if exists(join(NODE_PATH, "global.package")):
             packages = file_get_contents(join(NODE_PATH, "global.package")).strip()
@@ -195,6 +194,7 @@ class Node(AbstractService):
         pass
 
 
+@simple_cache(CACHE_LRU, 0, "node")
 def getNodeVersionFromUserRequest(args):
     versions = getNodeVersions()
     version = Version(strToVersion(args.version))

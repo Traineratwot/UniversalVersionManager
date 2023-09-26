@@ -3,6 +3,7 @@ import sys
 from os.path import join
 
 from SimpleCache2.FileCache import FileCache
+from SimpleCache2.LruCache import LruCache
 
 SEP = os.path.sep
 
@@ -15,3 +16,4 @@ TO_PATH_PATH = join(PROGRAM_PATH, 'toPath.exe')
 VERBOSE = 'unittest' in sys.modules.keys()
 
 CACHE = FileCache(cache_dir=CACHE_PATH)
+CACHE_LRU = LruCache()

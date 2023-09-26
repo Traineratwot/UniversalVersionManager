@@ -1,4 +1,3 @@
-import argparse
 import json
 import os
 import re
@@ -13,7 +12,7 @@ from prettytable import PrettyTable
 from version_parser import Version
 
 from src.AbstractService import AbstractService
-from src.config import VERBOSE, PHP_PATH, BIN_PATH, SEP, CACHE
+from src.config import VERBOSE, PHP_PATH, BIN_PATH, SEP, CACHE, CACHE_LRU
 from src.lang import _
 from src.utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, getUsed, is_process_running
 
@@ -72,7 +71,7 @@ class Php(AbstractService):
         pass
 
     def use(self, args):
-        if args.version:
+        if 'version' in args and args.version:
             v = getPhpVersionFromUserRequest(args)
             path = self.path(args)
             if not os.path.exists(path):
@@ -148,7 +147,7 @@ class Php(AbstractService):
         versions = getPhpVersions()
         is_64bits = sys.maxsize > 2 ** 32
         m = None
-        if args.version:
+        if 'version' in args and args.version:
             m = Version(strToVersion(args.version))
 
         def parse(_versions, r):
@@ -181,6 +180,7 @@ def printCurrentPhpVersions():
     pass
 
 
+@simple_cache(CACHE_LRU, 0, "php")
 def getPhpVersionFromUserRequest(args):
     versions = getPhpVersions()
     version = Version(strToVersion(args.version))
