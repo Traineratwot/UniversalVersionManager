@@ -43,10 +43,7 @@ class PhpCli(Controller):
         pass
 
     @ex(
-        help=_("help.list"),
-        arguments=[
-            (['version'], {"help": _("help.list"), 'nargs': 1}),
-        ]
+        help=_("help.list")
     )
     def list(self):
         print(php.list(self.app.pargs))
