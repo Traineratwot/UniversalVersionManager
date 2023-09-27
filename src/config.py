@@ -13,7 +13,7 @@ PHP_PATH = join(PROGRAM_PATH, 'php')
 BIN_PATH = join(PROGRAM_PATH, 'current')
 CACHE_PATH = join(PROGRAM_PATH, 'cache')
 TO_PATH_PATH = join(PROGRAM_PATH, 'toPath.exe')
-VERBOSE = 'unittest' in sys.modules.keys()
+VERBOSE = 'unittest' in sys.modules.keys() or '-d' in sys.argv or '--dev' in sys.argv
 
 CACHE = FileCache(cache_dir=CACHE_PATH)
 CACHE_LRU = LruCache()

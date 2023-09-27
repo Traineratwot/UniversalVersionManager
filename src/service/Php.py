@@ -28,45 +28,54 @@ class Php(AbstractService):
         phpBin = BIN_PATH + 'php' + SEP + 'php.exe'
         # Настройка Path
         allPhp = cmd("where php")
-        if len(allPhp) > 1 or (len(allPhp) == 1 and allPhp[0] != phpBin):
-            my_table = PrettyTable()
-            for item in allPhp:
-                my_table.add_row([item])
-            answer = True
-            if not VERBOSE:
-                q = questionary.confirm(f"""
-                Alternative installations have been found:
-                {my_table}
-                Do you want to replace them?
-                """)
-                answer = q.ask()
-            if answer:
-                # Интеграция с nvm
-                if len(cmd("where pvm")):
-                    os.system("pvm clear")
-                    allPhp = cmd("where php")
-                for item in allPhp:
-                    if item != BIN_PATH + 'php':
-                        removeToPath(os.path.dirname(item))
-                    pass
-                addToPath(BIN_PATH + 'php')
-            else:
-                return "exit"
-                pass
+        if self.OpenServer():
             pass
         else:
-            addToPath(BIN_PATH + 'php')
-            pass
+            if len(allPhp) > 1 or (len(allPhp) == 1 and allPhp[0] != phpBin):
+                my_table = PrettyTable()
+                for item in allPhp:
+                    my_table.add_row([item])
+                answer = True
+                if not VERBOSE:
+                    q = questionary.confirm(f"""
+                    Alternative installations have been found:
+                    {my_table}
+                    Do you want to replace them?
+                    """)
+                    answer = q.ask()
+                if answer:
+                    # Интеграция с nvm
+                    if len(cmd("where pvm")):
+                        os.system("pvm clear")
+                        allPhp = cmd("where php")
+                    for item in allPhp:
+                        if item != BIN_PATH + 'php':
+                            removeToPath(os.path.dirname(item))
+                        pass
+                    addToPath(BIN_PATH + 'php')
 
-    def OpenServer(self):
+                else:
+                    pass
+                pass
+            else:
+                addToPath(BIN_PATH + 'php')
+                pass
+
+    def OpenServer(self) -> bool:
         if self.OpenServerExits():
+            print("Test45465465465465465465466546546")
+            return True
             pass
+        return False
         pass
 
     def OpenServerExits(self):
         if is_process_running("Open Server Panel.exe"):
             return True
-
+        allPhp = cmd("where php")
+        if len(allPhp) > 1 or (len(allPhp) == 1 and "OSPanel" in allPhp[0]):
+            return True
+            pass
         return False
         pass
 

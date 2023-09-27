@@ -43,6 +43,7 @@ class UVM(App):
 
 
 if __name__ == '__main__':
+    # MAST HAVE
     a1 = cement.ext.ext_dummy
     a2 = cement.ext.ext_smtp
     a3 = cement.ext.ext_plugin
