@@ -125,7 +125,7 @@ class Node(AbstractService):
     def remove(self, args):
         path = self.path(args)
         if path:
-            path = os.path.dirname(os.path.dirname(path))
+            path = os.path.dirname(path)
             answer = True
             if not VERBOSE:
                 q = questionary.confirm(f"Delete this '{path}' ?")

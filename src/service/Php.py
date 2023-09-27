@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 import sys
+from os.path import join
 
 import questionary
 import requests
@@ -26,7 +27,7 @@ class Php(AbstractService):
     def setup(self):
         if not os.path.exists(PHP_PATH):
             os.mkdir(PHP_PATH)
-        phpBin = BIN_PATH + 'php' + SEP + 'php.exe'
+        phpBin = join(BIN_PATH, 'php', SEP, 'php.exe')
         # Настройка Path
         allPhp = cmd("where php")
         if self.OpenServer():
@@ -46,16 +47,16 @@ class Php(AbstractService):
                         os.system("pvm clear")
                         allPhp = cmd("where php")
                     for item in allPhp:
-                        if item != BIN_PATH + 'php':
+                        if item != join(BIN_PATH, 'php'):
                             removeToPath(os.path.dirname(item))
                         pass
-                    addToPath(BIN_PATH + 'php')
+                    addToPath(join(BIN_PATH, 'php'))
 
                 else:
                     pass
                 pass
             else:
-                addToPath(BIN_PATH + 'php')
+                addToPath(join(BIN_PATH, 'php'))
                 pass
 
     def OpenServer(self) -> bool:
@@ -88,9 +89,9 @@ class Php(AbstractService):
                 self.install(args)
             if not os.path.exists(path):
                 return 'error'
-            removeSymlink(BIN_PATH + 'php')
+            removeSymlink(join(BIN_PATH, 'php'))
             createSymlink(
-                target_dir=BIN_PATH + 'php',
+                target_dir=join(BIN_PATH, 'php'),
                 source_dir=path
             )
             saveUse('php', v['version'])
@@ -124,7 +125,7 @@ class Php(AbstractService):
     def install(self, args):
         v = getPhpVersionFromUserRequest(args)
         if v:
-            download(filename=PHP_PATH + v['version'], url=v['link'], kind='zip')
+            download(filename=join(PHP_PATH, v['version']), url=v['link'], kind='zip')
         return 'install'
         pass
 
@@ -145,7 +146,7 @@ class Php(AbstractService):
     def path(self, args):
         v = getPhpVersionFromUserRequest(args)
         if v:
-            return PHP_PATH + v['version']
+            return join(PHP_PATH, v['version'])
         pass
 
     def search(self, args):
