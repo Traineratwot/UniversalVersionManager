@@ -12,7 +12,8 @@ from prettytable import PrettyTable
 from version_parser import Version
 
 from src.AbstractService import AbstractService
-from src.config import VERBOSE, PHP_PATH, BIN_PATH, SEP, CACHE, CACHE_LRU
+from src.cache import MEMORY, CACHE, SETTINGS
+from src.config import VERBOSE, PHP_PATH, BIN_PATH, SEP
 from src.lang import _
 from src.utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, getUsed, is_process_running
 
@@ -37,11 +38,7 @@ class Php(AbstractService):
                     my_table.add_row([item])
                 answer = True
                 if not VERBOSE:
-                    q = questionary.confirm(f"""
-                    Alternative installations have been found:
-                    {my_table}
-                    Do you want to replace them?
-                    """)
+                    q = questionary.confirm(_('ask.alternative', 'php', my_table))
                     answer = q.ask()
                 if answer:
                     # Интеграция с nvm
@@ -63,7 +60,11 @@ class Php(AbstractService):
 
     def OpenServer(self) -> bool:
         if self.OpenServerExits():
-            print("Test45465465465465465465466546546")
+            answer = True
+            if not VERBOSE:
+                q = questionary.confirm("test")
+                answer = q.ask()
+            SETTINGS.set('OpenServerIntegrated', answer)
             return True
             pass
         return False
@@ -189,7 +190,7 @@ def printCurrentPhpVersions():
     pass
 
 
-@simple_cache(CACHE_LRU, 0, "php")
+@simple_cache(MEMORY, 0, "php")
 def getPhpVersionFromUserRequest(args):
     versions = getPhpVersions()
     version = Version(strToVersion(args.version))

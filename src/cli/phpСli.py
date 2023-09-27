@@ -13,7 +13,7 @@ if 'php' in sys.argv and not php:
 class PhpCli(Controller):
     class Meta:
         label = 'php'
-        title = 'NODE'
+        title = _('meta.title', "PHP")
         stacked_type = 'nested'
 
     def __init__(self, *args, **kw):
@@ -35,7 +35,7 @@ class PhpCli(Controller):
     @ex(
         help=_("help.off"),
         arguments=[
-            (['version'], {"help": _("help.off"), 'nargs': 1}),
+            (['version'], {"help": _("help.off"), }),
         ]
     )
     def off(self):
@@ -52,7 +52,7 @@ class PhpCli(Controller):
     @ex(
         help=_("help.install"),
         arguments=[
-            (['version'], {"help": _("help.install"), 'nargs': 1}),
+            (['version'], {"help": _("help.install"), }),
         ]
     )
     def install(self):
@@ -62,7 +62,7 @@ class PhpCli(Controller):
     @ex(
         help=_("help.remove"),
         arguments=[
-            (['version'], {"help": _("help.remove"), 'nargs': 1}),
+            (['version'], {"help": _("help.remove"), }),
         ]
     )
     def remove(self):
@@ -72,7 +72,7 @@ class PhpCli(Controller):
     @ex(
         help=_("help.path"),
         arguments=[
-            (['version'], {"help": _("help.path"), 'nargs': 1}),
+            (['version'], {"help": _("help.path"), }),
         ]
     )
     def path(self):

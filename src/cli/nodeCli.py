@@ -15,7 +15,7 @@ class NodeCli(Controller):
 
     class Meta:
         label = 'node'
-        title = 'NODE'
+        title = _('meta.title', "NODE")
         stacked_type = 'nested'
 
     def __init__(self, *args, **kw):
@@ -37,7 +37,7 @@ class NodeCli(Controller):
     @ex(
         help=_("help.off"),
         arguments=[
-            (['version'], {"help": _("help.off"), 'nargs': 1}),
+            (['version'], {"help": _("help.off"), }),
         ]
     )
     def off(self):
@@ -46,9 +46,6 @@ class NodeCli(Controller):
 
     @ex(
         help=_("help.list"),
-        arguments=[
-            (['version'], {"help": _("help.list"), 'nargs': 1}),
-        ]
     )
     def list(self):
         print(node.list(self.app.pargs))
@@ -57,7 +54,7 @@ class NodeCli(Controller):
     @ex(
         help=_("help.install"),
         arguments=[
-            (['version'], {"help": _("help.install"), 'nargs': 1}),
+            (['version'], {"help": _("help.install"), }),
         ]
     )
     def install(self):
@@ -67,7 +64,7 @@ class NodeCli(Controller):
     @ex(
         help=_("help.remove"),
         arguments=[
-            (['version'], {"help": _("help.remove"), 'nargs': 1}),
+            (['version'], {"help": _("help.remove"), }),
         ]
     )
     def remove(self):
@@ -77,7 +74,7 @@ class NodeCli(Controller):
     @ex(
         help=_("help.path"),
         arguments=[
-            (['version'], {"help": _("help.path"), 'nargs': 1}),
+            (['version'], {"help": _("help.path"), }),
         ]
     )
     def path(self):

@@ -14,12 +14,31 @@ lang = {
         "help.service": "1 из поддерживаемых приложений",
         "help.version": "[Опционально] Желаемая версия",
 
+        "help.base.deInstall": "Полное удаление UVM",
+        "help.base.install": "Установка UVM",
+
+        "ask.alternative": r"""
+Найдены альтернативные установленные версии "{}".:
+{}
+Вы хотите заменить их?
+""",
+        "ask.install": r"""
+Установить в "{}"? 
+""",
+        "ask.deInstall": r"""
+Вы действительно хотите удалить UVM? 
+""",
+
         "unknown": "Неизвестно",
         "lts": "Поддеживается",
         "arch": "Архитектура",
         "version": "Версия",
         "released": "Релиз",
         "used": "Сейчас используестя {}: {} ",
+        "path": "путь",
+
+        "meta.title": "{} Менеджер версий"
+
     },
     'en': {
         "help.use": "Select version to use",
@@ -33,12 +52,30 @@ lang = {
         "help.service": "1 from supported applications",
         "help.version": "[Optional] Desired version",
 
+        "help.base.deInstall": "FULL removal UVM",
+        "help.base.install": "Install UVM",
+
+        "ask.alternative": r"""
+Alternative "{}" installations have been found:
+{}
+Do you want to replace them?
+""",
+        "ask.install": r"""
+Install in "{}"? 
+""",
+        "ask.deInstall": r"""
+Do you really want to remove UVM? 
+""",
+
         "unknown": "Unknown",
         "lts": "Lts",
         "arch": "Arch",
         "version": "Version",
         "released": "Released",
         "used": "Now used {}: {} ",
+        "path": "path",
+
+        "meta.title": "{}  Version Manager"
     }
 }
 

@@ -12,7 +12,8 @@ from prettytable import PrettyTable
 from version_parser import Version
 
 from src.AbstractService import AbstractService
-from src.config import NODE_PATH, BIN_PATH, VERBOSE, CACHE, CACHE_LRU
+from src.cache import MEMORY, CACHE
+from src.config import NODE_PATH, BIN_PATH, VERBOSE
 from src.lang import _
 from src.utils import download, addToPath, removeToPath, cmd, createSymlink, \
     removeSymlink, strToVersion, file_get_contents, file_put_contents, saveUse, getUsed
@@ -33,15 +34,12 @@ class Node(AbstractService):
         allNodes = cmd("where node")
         if len(allNodes) > 1 or (len(allNodes) == 1 and allNodes[0] != nodeBin):
             my_table = PrettyTable()
+            my_table.add_column(_('path'), [])
             for item in allNodes:
                 my_table.add_row([item])
             answer = True
             if not VERBOSE:
-                q = questionary.confirm(f"""
-                Alternative installations have been found:
-                {my_table}
-                Do you want to replace them?
-                """)
+                q = questionary.confirm(_('ask.alternative', 'node', my_table))
                 answer = q.ask()
             if answer:
                 # Интеграция с nvm
@@ -194,7 +192,7 @@ class Node(AbstractService):
         pass
 
 
-@simple_cache(CACHE_LRU, 0, "node")
+@simple_cache(MEMORY, 0, "node")
 def getNodeVersionFromUserRequest(args):
     versions = getNodeVersions()
     version = Version(strToVersion(args.version))
