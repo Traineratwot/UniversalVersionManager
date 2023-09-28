@@ -130,10 +130,11 @@ class Php(AbstractService):
     def install(self, args):
         v = getPhpVersionFromUserRequest(args)
         if v:
+            print(v['link'])
             if v['link'].startswith('http'):
                 download(filename=join(PHP_PATH, v['version']), url=v['link'], kind='zip')
             else:
-                if os.path.exists(join(PHP_PATH, v['version'])):
+                if os.path.exists(join(PHP_PATH, v['version'])) and not os.path.islink(join(PHP_PATH, v['version'])):
                     shutil.rmtree(join(PHP_PATH, v['version']))
                 createSymlink(
                     target_dir=join(PHP_PATH, v['version']),
@@ -219,7 +220,7 @@ def getPhpVersionFromUserRequest(args):
             return None
         if userMajor in versions_list and userMinor in versions_list[userMajor] and userBuild in versions_list[userMajor][userMinor]:
             founded = {
-                "version": '.'.join([userMajor, userMinor.userBuild]),
+                "version": '.'.join([userMajor, userMinor, userBuild]),
                 "link": versions_list[userMajor][userMinor][userBuild],
                 "release": release
             }

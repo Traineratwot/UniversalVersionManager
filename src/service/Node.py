@@ -63,7 +63,7 @@ class Node(AbstractService):
         pass
 
     def use(self, args):
-        if 'version' in args and args.version:
+        if args.version:
             v = getNodeVersionFromUserRequest(args)
             path = self.path(args)
             if not path:
