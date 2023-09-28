@@ -2,74 +2,29 @@
 
 The purpose of this project to create a universal tool for developers will switch the versions of your tools
 
-**Now supported** `nodejs`
+**Now supported** - `nodejs` `php`
 
+**Paned supported** - `pytоn`
 ## Install
 
-//TODO
+1) download UVM.exe from latest release
+1) start UVM.exe
+2) confim install
+3) restart cmd
+4) use uvm command
 
 ## Usage
 
-### common
-
-- help - print help
+- Help
 
 ```bash
 uvm -h 
-```
-
-`3 argument version can bee any version string eg: 20, 20.8, 20.8.9, v20.8.9 ...`
-
-### Node
-
-- search [version] - search node versions in net
-
-```bash
-uvm node search [version]
-```
-
-- list - show installed node versions
-
-```bash
-uvm node list
-```
-
-- install - install new version
-
-```bash
-uvm node install {version}
-```
-
-- remove - remove node version
-
-```bash
-uvm node remove {version}
-```
-
-- use - select version for use if version not installed - download
-
-```bash
-uvm node use {version}
-```
-
-- off - deselect current version
-
-```bash
-uvm node off
-```
-
-- path - print path to node folder
-
-```bash
-uvm node path {version}
-```
-
-- addGlobal - add a global package to all versions, for example: typescript, **you can`t install many package in one command**
-
-```bash
-uvm node addGlobal {package}
+uvm php -h 
+uvm node -h 
 ```
 
 ## Uninstall
 
-//TODO
+```bash
+uvm deInstall
+```

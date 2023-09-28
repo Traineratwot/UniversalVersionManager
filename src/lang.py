@@ -28,6 +28,7 @@ lang = {
         "ask.deInstall": r"""
 Вы действительно хотите удалить UVM? 
 """,
+        "ask.OpenServer": "Желаете включить интеграцию с OpenServer?",
 
         "unknown": "Неизвестно",
         "lts": "Поддеживается",
@@ -66,6 +67,7 @@ Install in "{}"?
         "ask.deInstall": r"""
 Do you really want to remove UVM? 
 """,
+        "ask.OpenServer": "Would you like to enable integration with OpenServer?",
 
         "unknown": "Unknown",
         "lts": "Lts",

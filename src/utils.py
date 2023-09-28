@@ -108,7 +108,7 @@ def getUsed(service):
 def is_process_running(process_name):
     for proc in psutil.process_iter(['name']):
         if proc.name() == process_name:
-            return True
+            return proc.exe()
     return False
 
 

@@ -1,4 +1,11 @@
-from src.lang import _
+from src.service.Php import getPhpVersionFromUserRequest
 
-print(_('test'))
-print(_('test', 154654, 4845))
+
+class Args:
+    def __init__(self):
+        self.version = "5"
+
+
+args = Args()
+
+print(getPhpVersionFromUserRequest(args))

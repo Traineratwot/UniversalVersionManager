@@ -3,7 +3,7 @@ import os
 import re
 import shutil
 import sys
-from os.path import join
+from os.path import join, dirname
 
 import questionary
 import requests
@@ -13,8 +13,8 @@ from prettytable import PrettyTable
 from version_parser import Version
 
 from src.AbstractService import AbstractService
-from src.cache import MEMORY, CACHE, SETTINGS
-from src.config import VERBOSE, PHP_PATH, BIN_PATH, SEP
+from src.cache import MEMORY, SETTINGS, CACHE
+from src.config import VERBOSE, PHP_PATH, BIN_PATH
 from src.lang import _
 from src.utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, getUsed, is_process_running
 
@@ -27,12 +27,12 @@ class Php(AbstractService):
     def setup(self):
         if not os.path.exists(PHP_PATH):
             os.mkdir(PHP_PATH)
-        phpBin = join(BIN_PATH, 'php', SEP, 'php.exe')
+        phpBin = join(BIN_PATH, 'php', 'php.exe')
         # Настройка Path
-        allPhp = cmd("where php")
         if self.OpenServer():
             pass
         else:
+            allPhp = cmd("where php")
             if len(allPhp) > 1 or (len(allPhp) == 1 and allPhp[0] != phpBin):
                 my_table = PrettyTable()
                 for item in allPhp:
@@ -60,23 +60,27 @@ class Php(AbstractService):
                 pass
 
     def OpenServer(self) -> bool:
-        if self.OpenServerExits():
+        osPath = self.OpenServerExits()
+        if osPath and not SETTINGS.exist('OpenServerIntegrated'):
             answer = True
             if not VERBOSE:
-                q = questionary.confirm("test")
+                q = questionary.confirm(_('ask.OpenServer'))
                 answer = q.ask()
             SETTINGS.set('OpenServerIntegrated', answer)
-            return True
+            SETTINGS.set('OpenServerPath', osPath)
+            return answer
             pass
         return False
         pass
 
     def OpenServerExits(self):
-        if is_process_running("Open Server Panel.exe"):
-            return True
+        path = is_process_running("Open Server Panel.exe")
+        if path:
+            return dirname(path)
         allPhp = cmd("where php")
         if len(allPhp) > 1 or (len(allPhp) == 1 and "OSPanel" in allPhp[0]):
-            return True
+            path = dirname(dirname(dirname(allPhp[0])))
+            return path
             pass
         return False
         pass
@@ -102,6 +106,7 @@ class Php(AbstractService):
         pass
 
     def off(self, args):
+        removeSymlink(join(BIN_PATH, 'php'))
         pass
 
     def list(self, args):
@@ -125,7 +130,15 @@ class Php(AbstractService):
     def install(self, args):
         v = getPhpVersionFromUserRequest(args)
         if v:
-            download(filename=join(PHP_PATH, v['version']), url=v['link'], kind='zip')
+            if v['link'].startswith('http'):
+                download(filename=join(PHP_PATH, v['version']), url=v['link'], kind='zip')
+            else:
+                if os.path.exists(join(PHP_PATH, v['version'])):
+                    shutil.rmtree(join(PHP_PATH, v['version']))
+                createSymlink(
+                    target_dir=join(PHP_PATH, v['version']),
+                    source_dir=v['link']
+                )
         return 'install'
         pass
 
@@ -178,6 +191,7 @@ class Php(AbstractService):
                             my_table.add_row([arch, v, r])
                             pass
 
+        parse(versions['OpenServer'], "OpenServer")
         parse(versions['releases'], True)
         parse(versions['archived'], False)
 
@@ -199,14 +213,15 @@ def getPhpVersionFromUserRequest(args):
     userMinor = version.get_minor_version().__str__()
     userBuild = version.get_build_version().__str__()
 
-    def find(versions_list, strict=True):
+    def find(versions_list, strict=True, release=None):
         founded = None
         if userMajor.__str__() not in versions_list:
             return None
         if userMajor in versions_list and userMinor in versions_list[userMajor] and userBuild in versions_list[userMajor][userMinor]:
             founded = {
                 "version": '.'.join([userMajor, userMinor.userBuild]),
-                "link": versions_list[userMajor][userMinor][userBuild]
+                "link": versions_list[userMajor][userMinor][userBuild],
+                "release": release
             }
         if founded:
             raise Exception(founded)
@@ -216,7 +231,8 @@ def getPhpVersionFromUserRequest(args):
             build = max(versions_list[userMajor][userMinor].keys()).__str__()
             founded = {
                 "version": '.'.join([userMajor, userMinor, build]),
-                "link": versions_list[userMajor][userMinor][build]
+                "link": versions_list[userMajor][userMinor][build],
+                "release": release
             }
         if founded:
             raise Exception(founded)
@@ -227,7 +243,8 @@ def getPhpVersionFromUserRequest(args):
             build = max(versions_list[userMajor][minor].keys()).__str__()
             founded = {
                 "version": '.'.join([userMajor, minor, build]),
-                "link": versions_list[userMajor][minor][build]
+                "link": versions_list[userMajor][minor][build],
+                "release": release
             }
         if founded:
             raise Exception(founded)
@@ -237,16 +254,18 @@ def getPhpVersionFromUserRequest(args):
     try:
         is_64bits = sys.maxsize > 2 ** 32
         if is_64bits:
-            find(versions['releases']['64'])
-            find(versions['archived']['64'])
-        find(versions['releases']['86'])
-        find(versions['archived']['86'])
+            find(versions['OpenServer']['64'], release='OpenServer')
+            find(versions['releases']['64'], release='releases')
+            find(versions['archived']['64'], release='archived')
+        find(versions['releases']['86'], release='releases')
+        find(versions['archived']['86'], release='archived')
 
         if is_64bits:
-            find(versions['releases']['64'], False)
-            find(versions['archived']['64'], False)
-        find(versions['releases']['86'], False)
-        find(versions['archived']['86'], False)
+            find(versions['OpenServer']['64'], False, release='OpenServer')
+            find(versions['releases']['64'], False, release='releases')
+            find(versions['archived']['64'], False, release='archived')
+        find(versions['releases']['86'], False, release='releases')
+        find(versions['archived']['86'], False, release='archived')
         raise Exception(None)
     except Exception as e:
         return e.args[0]
@@ -257,6 +276,9 @@ def getPhpVersionFromUserRequest(args):
 def getPhpVersions():
     versions = {}
     regex = r"^ts-(.{4})-x(86|64)$"
+    versions['OpenServer'] = {
+        "64": {},
+    }
     versions['releases'] = {
         "64": {},
         "86": {}
@@ -314,6 +336,25 @@ def getPhpVersions():
                 versions['archived'][arch][major][minor][build] = f"https://windows.php.net/downloads/releases/archives/{link.text}"
     except ValueError:
         pass
-    # pprint.pprint(versions)
+    try:
+        if SETTINGS.get('OpenServerIntegrated'):
+            files = os.scandir(join(SETTINGS.get('OpenServerPath'), 'modules', 'php'))
+            for file in files:
+                regex = r"PHP_(\d+)\.(\d+)"
+                matches = re.search(regex, file.name)
+                arch = '64'
+                major = matches[1]
+                minor = matches[2]
+                build = '0'
+                if major not in versions['OpenServer'][arch]:
+                    versions['OpenServer'][arch][major] = {}
+                if minor not in versions['OpenServer'][arch][major]:
+                    versions['OpenServer'][arch][major][minor] = {}
+                if build not in versions['OpenServer'][arch][major][minor]:
+                    versions['OpenServer'][arch][major][minor][build] = {}
+                versions['OpenServer'][arch][major][minor][build] = file.path
+            pass
+    except ValueError:
+        pass
     return versions
     pass
