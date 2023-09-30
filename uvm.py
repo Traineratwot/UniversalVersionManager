@@ -41,6 +41,8 @@ class Base(Controller):
         if isInstalled():
             self._parser.print_help()
             exit(0)
+        else:
+            install()
 
     @ex(
         help=_("help.base.install"),
