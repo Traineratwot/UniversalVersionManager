@@ -44,13 +44,13 @@ def sendStat(action: str = None, data: dict = None) -> None:
 def send(action: str = None, data: dict = None) -> None:
     userId = getUserId()
     url = r'https://unicorn.traineratwot.site/matomo.php?'
-    argv = sys.argv.pop(0)
+    sys.argv.pop(0)
     params = {
         "apiv": "1",
         "idsite": "4",
         "rec": "1",
         "ua": "UVM",
-        "url": urljoin('', argv)
+        "url": "/".join(sys.argv)
     }
     if action:
         params['action_name'] = action
