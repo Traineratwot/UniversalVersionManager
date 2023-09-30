@@ -26,5 +26,5 @@ uvm node -h
 ## Uninstall
 
 ```bash
-uvm deInstall
+uvm uninstall
 ```

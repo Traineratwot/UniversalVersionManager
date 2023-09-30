@@ -16,6 +16,7 @@ from src.AbstractService import AbstractService
 from src.cache import MEMORY, SETTINGS, CACHE
 from src.config import VERBOSE, PHP_PATH, BIN_PATH
 from src.lang import _
+from src.stat import sendStat
 from src.utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, getUsed, is_process_running
 
 phpBaseAddress = "https://windows.php.net/downloads/releases/"
@@ -61,24 +62,27 @@ class Php(AbstractService):
 
     def OpenServer(self) -> bool:
         osPath = self.OpenServerExits()
-        if osPath and not SETTINGS.exist('OpenServerIntegrated'):
-            answer = True
-            if not VERBOSE:
-                q = questionary.confirm(_('ask.OpenServer'))
-                answer = q.ask()
-            SETTINGS.set('OpenServerIntegrated', answer)
-            SETTINGS.set('OpenServerPath', osPath)
-            return answer
+        if osPath:
+            sendStat('OpenServerExits')
+            if not SETTINGS.exist('OpenServerIntegrated'):
+                answer = True
+                if not VERBOSE:
+                    q = questionary.confirm(_('ask.OpenServer'))
+                    answer = q.ask()
+                SETTINGS.set('OpenServerIntegrated', answer)
+                SETTINGS.set('OpenServerPath', osPath)
+                sendStat('OpenServer', {"on": answer})
+                return answer
             pass
         return False
         pass
 
     def OpenServerExits(self):
-        path = is_process_running("Open Server Panel.exe")
+        path = is_process_running("Open Server Panel.exe") or is_process_running("Open Server.exe")
         if path:
             return dirname(path)
         allPhp = cmd("where php")
-        if len(allPhp) > 1 or (len(allPhp) == 1 and "OSPanel" in allPhp[0]):
+        if len(allPhp) > 1 or (len(allPhp) == 1 and ("OSPanel" in allPhp[0] or "openserver" in allPhp[0])):
             path = dirname(dirname(dirname(allPhp[0])))
             return path
             pass
@@ -88,18 +92,21 @@ class Php(AbstractService):
     def use(self, args):
         if 'version' in args and args.version:
             v = getPhpVersionFromUserRequest(args)
-            path = self.path(args)
-            if not os.path.exists(path):
-                self.install(args)
-            if not os.path.exists(path):
-                return 'error'
-            removeSymlink(join(BIN_PATH, 'php'))
-            createSymlink(
-                target_dir=join(BIN_PATH, 'php'),
-                source_dir=path
-            )
-            saveUse('php', v['version'])
-            return printCurrentPhpVersions()
+            if v:
+                path = self.path(args)
+                if path:
+                    if not os.path.exists(path):
+                        self.install(args)
+                    if not os.path.exists(path):
+                        return 'error'
+                    removeSymlink(join(BIN_PATH, 'php'))
+                    createSymlink(
+                        target_dir=join(BIN_PATH, 'php'),
+                        source_dir=path
+                    )
+                    saveUse('php', v['version'])
+                    return printCurrentPhpVersions()
+            return _("err.versionNotFound", args.version)
         else:
             return printCurrentPhpVersions()
         pass
@@ -140,6 +147,9 @@ class Php(AbstractService):
                     target_dir=join(PHP_PATH, v['version']),
                     source_dir=v['link']
                 )
+
+            sendStat('php_install', {'version': v['version']})
+
         return 'install'
         pass
 
@@ -152,6 +162,7 @@ class Php(AbstractService):
                 answer = q.ask()
             if answer:
                 shutil.rmtree(path)
+                sendStat('node_remove', {'version': os.path.basename(path)})
                 return f'removed {path}'
             return 'canceled'
         return 'already removed'

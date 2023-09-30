@@ -15,6 +15,7 @@ from src.AbstractService import AbstractService
 from src.cache import MEMORY, CACHE
 from src.config import NODE_PATH, BIN_PATH, VERBOSE
 from src.lang import _
+from src.stat import sendStat
 from src.utils import download, addToPath, removeToPath, cmd, createSymlink, \
     removeSymlink, strToVersion, file_get_contents, file_put_contents, saveUse, getUsed
 
@@ -65,30 +66,32 @@ class Node(AbstractService):
     def use(self, args):
         if args.version:
             v = getNodeVersionFromUserRequest(args)
-            path = self.path(args)
-            if not path:
-                self.install(args)
+            if v:
+                path = self.path(args)
+                if not path:
+                    self.install(args)
 
-            path = self.path(args)
-            if not path:
-                return 'error'
-            removeSymlink(join(BIN_PATH, 'node'))
-            createSymlink(
-                target_dir=join(BIN_PATH, 'node'),
-                source_dir=path
-            )
-            saveUse('node', v['version'])
-            if exists(join(NODE_PATH, "global.package")):
-                if not exists(join(path, "global.package")) or not filecmp.cmp(join(NODE_PATH, "global.package"), join(path, "global.package")):
-                    packages = set(file_get_contents(join(NODE_PATH, "global.package")).strip().split("\n"))
-                    packages_old = set()
-                    if exists(join(path, "global.package")):
-                        packages_old = set(file_get_contents(join(path, "global.package")).strip().split("\n"))
-                    diff = packages - packages_old
-                    for package in diff:
-                        os.system(f"npm install -g {package}")
-                    shutil.copyfile(join(NODE_PATH, "global.package"), join(path, "global.package"))
-            return printCurrentNodeVersions()
+                path = self.path(args)
+                if not path:
+                    return 'error'
+                removeSymlink(join(BIN_PATH, 'node'))
+                createSymlink(
+                    target_dir=join(BIN_PATH, 'node'),
+                    source_dir=path
+                )
+                saveUse('node', v['version'])
+                if exists(join(NODE_PATH, "global.package")):
+                    if not exists(join(path, "global.package")) or not filecmp.cmp(join(NODE_PATH, "global.package"), join(path, "global.package")):
+                        packages = set(file_get_contents(join(NODE_PATH, "global.package")).strip().split("\n"))
+                        packages_old = set()
+                        if exists(join(path, "global.package")):
+                            packages_old = set(file_get_contents(join(path, "global.package")).strip().split("\n"))
+                        diff = packages - packages_old
+                        for package in diff:
+                            os.system(f"npm install -g {package}")
+                        shutil.copyfile(join(NODE_PATH, "global.package"), join(path, "global.package"))
+                return printCurrentNodeVersions()
+            return _("err.versionNotFound", args.version)
         else:
             return printCurrentNodeVersions()
         pass
@@ -118,7 +121,7 @@ class Node(AbstractService):
         href = nodeBaseAddress + v['version'] + "/" + name + ".zip"
         # Скачивает node
         download(filename=join(NODE_PATH, v['version']), url=href, kind='zip')
-
+        sendStat('node_install', {'version': v['version']})
         return 'install'
         pass
 
@@ -132,6 +135,7 @@ class Node(AbstractService):
                 answer = q.ask()
             if answer:
                 shutil.rmtree(path)
+                sendStat('node_remove', {'version': os.path.basename(path)})
                 return f'removed {path}'
             return 'canceled'
         return 'already removed'
@@ -141,14 +145,15 @@ class Node(AbstractService):
         if not args.version:
             return "need version"
         v = getNodeVersionFromUserRequest(args)
-        folder = join(NODE_PATH, v['version'])
-        if exists(folder):
-            with os.scandir(folder) as it:
-                for entry in it:
-                    if not entry.name.startswith('.'):
-                        folder = join(folder, entry.name)
-                        break
-            return folder
+        if v:
+            folder = join(NODE_PATH, v['version'])
+            if exists(folder):
+                with os.scandir(folder) as it:
+                    for entry in it:
+                        if not entry.name.startswith('.'):
+                            folder = join(folder, entry.name)
+                            break
+                return folder
         return None
         pass
 
@@ -201,7 +206,7 @@ def getNodeVersionFromUserRequest(args):
     userBuild = version.get_build_version()
     founded = None
     if userMajor.__str__() not in versions['list']:
-        raise Exception(f"unknown Major version: {userMajor.__str__()}")
+        return founded
     for version in versions['list'][userMajor.__str__()]:
         v = Version(version['version'])
         listMajor = v.get_major_version()

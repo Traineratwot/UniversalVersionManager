@@ -1,8 +1,17 @@
 import locale
 import warnings
 
+from SimpleCache2 import simple_cache
+
+from src.cache import MEMORY
+
 lang = {
     'ru': {
+        "log.addedToPath": "Добавлено в Path '{}'",
+        "log.removeToPath": "Удалено bp Path '{}'",
+
+        "err.versionNotFound": "Не удалоь найти версияю по запросу: '{}'",
+
         "help.use": "Выбрать версию для использования",
         "help.off": "Отменить выбор версии",
         "help.list": "Показать все доступные версии",
@@ -16,6 +25,7 @@ lang = {
 
         "help.base.deInstall": "Полное удаление UVM",
         "help.base.install": "Установка UVM",
+        "help.base.printVersion": "Получить текущую версию ({})",
 
         "ask.alternative": r"""
 Найдены альтернативные установленные версии "{}".:
@@ -42,6 +52,11 @@ lang = {
 
     },
     'en': {
+        "log.addedToPath": "added to Path '{}'",
+        "log.removeToPath": "removed from Path '{}'",
+
+        "err.versionNotFound": "Could not find the version by : '{}'",
+
         "help.use": "Select version to use",
         "help.off": "Deselect version",
         "help.list": "Show all available versions",
@@ -55,6 +70,7 @@ lang = {
 
         "help.base.deInstall": "FULL removal UVM",
         "help.base.install": "Install UVM",
+        "help.base.printVersion": "Get current version ({})",
 
         "ask.alternative": r"""
 Alternative "{}" installations have been found:
@@ -82,6 +98,7 @@ Do you really want to remove UVM?
 }
 
 
+@simple_cache(MEMORY)
 def get_system_language():
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', category=DeprecationWarning)

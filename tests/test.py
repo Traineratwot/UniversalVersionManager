@@ -1,11 +1,4 @@
-from src.service.Php import getPhpVersionFromUserRequest
-
-
-class Args:
-    def __init__(self):
-        self.version = "5"
-
-
-args = Args()
-
-print(getPhpVersionFromUserRequest(args))
+import sys
+from urllib.parse import urljoin
+argv = sys.argv.pop(0)
+print(urljoin('', argv))
