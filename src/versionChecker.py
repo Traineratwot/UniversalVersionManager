@@ -8,7 +8,7 @@ import requests
 from SimpleCache2 import simple_cache
 from version_parser import Version
 
-from src.cache import CACHE
+from src.cache import CACHE, SETTINGS
 from src.config import VERBOSE, PROGRAM_PATH
 from src.lang import _
 from src.utils import download
@@ -28,6 +28,11 @@ def selfUpdate():
     current = Version(UVM_VERSION)
     latest = Version(release['tag_name'])
     if current < latest:
+        skip = SETTINGS.get("skipUpdateVersion")
+        if skip:
+            skip = Version(skip)
+            if skip >= latest:
+                return
         answer = True
         file = find(release)
         size = math.floor(file['size'] / 1000000).__str__() + " Mb"
@@ -45,6 +50,8 @@ def selfUpdate():
                 exit(2)
             exit(1)
             pass
+        else:
+            SETTINGS.set("skipUpdateVersion", release['tag_name'])
         pass
 
 
