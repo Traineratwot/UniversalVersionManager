@@ -1,1 +1,1 @@
-UVM_VERSION = r'1.1.1'
+UVM_VERSION = r'0.0.1'

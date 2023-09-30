@@ -35,11 +35,9 @@ lang = {
         "ask.install": r"""
 Установить в "{}"? 
 """,
-        "ask.deInstall": r"""
-Вы действительно хотите удалить UVM? 
-""",
+        "ask.deInstall": "Вы действительно хотите удалить UVM?",
         "ask.OpenServer": "Желаете включить интеграцию с OpenServer?",
-
+        "ask.newVersion": "Доступна новая версия UVМ {}. {} Желаете обновить?",
         "unknown": "Неизвестно",
         "lts": "Поддеживается",
         "arch": "Архитектура",
@@ -84,7 +82,7 @@ Install in "{}"?
 Do you really want to remove UVM? 
 """,
         "ask.OpenServer": "Would you like to enable integration with OpenServer?",
-
+        "ask.newVersion": "A new version of UVM {} is available. {} Would you like to update? ",
         "unknown": "Unknown",
         "lts": "Lts",
         "arch": "Arch",

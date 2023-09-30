@@ -1,6 +1,6 @@
 import os
 import subprocess
-import sys
+from sys import exit
 
 import cement.ext.ext_argparse
 import cement.ext.ext_configparser
@@ -15,9 +15,10 @@ from cement import App, ex, Controller
 from src.cli.nodeCli import NodeCli
 from src.cli.phpСli import PhpCli
 from src.config import PROGRAM_PATH, VERBOSE
-from src.lang import _, lang
+from src.lang import _
 from src.stat import sendStat, futures
 from src.utils import removeToPath, install, isInstalled
+from src.versionChecker import selfUpdate
 from version import UVM_VERSION
 
 
@@ -88,6 +89,8 @@ class UVM(App):
 
 
 if __name__ == '__main__':
+    selfUpdate()
+
     try:
         # MAST HAVE
         a1 = cement.ext.ext_dummy
