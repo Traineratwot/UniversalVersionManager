@@ -15,7 +15,7 @@ from cement import App, ex, Controller
 from src.cli.nodeCli import NodeCli
 from src.cli.phpСli import PhpCli
 from src.config import PROGRAM_PATH, VERBOSE
-from src.lang import _
+from src.lang import _, lang
 from src.stat import sendStat, futures
 from src.utils import removeToPath, install
 from version import UVM_VERSION

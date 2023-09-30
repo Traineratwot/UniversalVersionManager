@@ -9,7 +9,7 @@ from uuid import getnode as get_mac
 import requests
 from SimpleCache2 import simple_cache
 
-from lang import langKey
+from src.lang import langKey
 from src.cache import MEMORY
 
 pool = Pool(10)
