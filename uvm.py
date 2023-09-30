@@ -17,7 +17,7 @@ from src.cli.phpСli import PhpCli
 from src.config import PROGRAM_PATH, VERBOSE
 from src.lang import _, lang
 from src.stat import sendStat, futures
-from src.utils import removeToPath, install
+from src.utils import removeToPath, install, isInstalled
 from version import UVM_VERSION
 
 
@@ -37,14 +37,14 @@ class Base(Controller):
 
     @ex(hide=True)
     def _default(self):
-        if self.install():
-            super()._default()
+        if isInstalled():
+            self._parser.print_help()
+            exit(0)
 
     @ex(
         help=_("help.base.install"),
     )
     def install(self):
-        print(sys.executable)
         install()
 
     @ex(
