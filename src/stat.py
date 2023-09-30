@@ -9,8 +9,8 @@ from uuid import getnode as get_mac
 import requests
 from SimpleCache2 import simple_cache
 
-from src.lang import langKey
 from src.cache import MEMORY
+from src.lang import langKey
 
 pool = Pool(10)
 futures = []

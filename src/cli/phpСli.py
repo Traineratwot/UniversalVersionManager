@@ -1,3 +1,5 @@
+from sys import exit
+
 from cement import Controller, ex
 
 from src.lang import _
