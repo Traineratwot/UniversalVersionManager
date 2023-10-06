@@ -68,7 +68,8 @@ def cmd(command, verbose=False):
 
 def createSymlink(source_dir, target_dir, verbose=VERBOSE):
     try:
-        if not os.symlink(source_dir, target_dir) or not os.path.islink(target_dir):
+        os.symlink(source_dir, target_dir)
+        if not os.path.exists(target_dir):
             subprocess.check_call('mklink /D/j %s %s' % (target_dir, source_dir), shell=True)
         if verbose:
             print(f"Symlink created from {source_dir} to {target_dir}")
