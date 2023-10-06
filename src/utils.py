@@ -68,11 +68,14 @@ def cmd(command, verbose=False):
 
 def createSymlink(source_dir, target_dir, verbose=VERBOSE):
     try:
-        os.symlink(source_dir, target_dir)
-        if not os.path.exists(target_dir):
-            subprocess.check_call('mklink /D/j %s %s' % (target_dir, source_dir), shell=True)
+        removeSymlink(target_dir)
+        command = 'mklink /D/j %s %s' % (target_dir, source_dir)
+        os.system(command)
         if verbose:
-            print(f"Symlink created from {source_dir} to {target_dir}")
+            if os.path.islink(target_dir):
+                print(f"Symlink created from {source_dir} to {target_dir}")
+            else:
+                print(f"Symlink NOT created from {source_dir} to {target_dir}")
     except FileExistsError:
         if verbose:
             print(f"Symlink already exists at {target_dir}")
