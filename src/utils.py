@@ -69,24 +69,33 @@ def cmd(command, verbose=False):
 def createSymlink(source_dir, target_dir, verbose=VERBOSE):
     try:
         removeSymlink(target_dir)
-        command = 'mklink /D/j %s %s' % (target_dir, source_dir)
-        os.system(command)
+        command = 'MKLINK /D/j %s %s >/dev/null 2>&1' % (target_dir, source_dir)
         if verbose:
-            if os.path.islink(target_dir):
+            print(command)
+        os.system(command)
+        if os.path.exists(target_dir):
+            if verbose:
                 print(f"Symlink created from {source_dir} to {target_dir}")
-            else:
+            return True
+        else:
+            if verbose:
                 print(f"Symlink NOT created from {source_dir} to {target_dir}")
+            return False
     except FileExistsError:
         if verbose:
             print(f"Symlink already exists at {target_dir}")
     except OSError as e:
         if verbose:
             print(f"Failed to create symlink: {e}")
+    return False
 
 
 def removeSymlink(target_dir, verbose=VERBOSE):
-    if os.path.islink(target_dir):
-        os.unlink(target_dir)
+    if os.path.exists(target_dir):
+        command = 'RMDIR %s >/dev/null 2>&1' % target_dir
+        if verbose:
+            print(command)
+        os.system(command)
         if verbose:
             print(f"Symlink {target_dir} success delete.")
     else:
