@@ -4,6 +4,7 @@ import os.path
 import shutil
 import sys
 from os.path import exists, join
+from sys import exit
 
 import questionary
 import requests
@@ -81,7 +82,8 @@ class Node(AbstractService):
                 )
                 saveUse('node', v['version'])
                 if exists(join(NODE_PATH, "global.package")):
-                    if not exists(join(path, "global.package")) or not filecmp.cmp(join(NODE_PATH, "global.package"), join(path, "global.package")):
+                    if not exists(join(path, "global.package")) or not filecmp.cmp(join(NODE_PATH, "global.package"),
+                                                                                   join(path, "global.package")):
                         packages = set(file_get_contents(join(NODE_PATH, "global.package")).strip().split("\n"))
                         packages_old = set()
                         if exists(join(path, "global.package")):
@@ -270,4 +272,5 @@ def getNodeVersions():
 def printCurrentNodeVersions():
     node = cmd("node -v")
     npm = cmd("npm -v")
-    return _('used', 'node', node[0] if len(node) >= 1 else "node use error") + "\n" + _('used', 'npm', npm[0] if len(npm) >= 1 else "npm use error")
+    return _('used', 'node', node[0] if len(node) >= 1 else "node use error") + "\n" + _('used', 'npm', npm[0] if len(
+        npm) >= 1 else "npm use error")
