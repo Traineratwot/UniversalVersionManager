@@ -176,6 +176,7 @@ class Node(AbstractService):
         return my_table
         pass
 
+    # noinspection PyMethodMayBeStatic
     def addGlobal(self, args):
         packageList = set(args.packages)
         packages = set()

@@ -8,7 +8,7 @@ from src.cache import MEMORY
 lang = {
     'ru': {
         "log.addedToPath": "Добавлено в Path '{}'",
-        "log.removeToPath": "Удалено bp Path '{}'",
+        "log.removeToPath": "Удалено из Path '{}'",
 
         "err.versionNotFound": "Не удалоь найти версияю по запросу: '{}'",
 
@@ -26,6 +26,7 @@ lang = {
         "help.base.deInstall": "Полное удаление UVM",
         "help.base.install": "Установка UVM",
         "help.base.printVersion": "Получить текущую версию ({})",
+        "help.base.clearCache": "Очистить кеш",
 
         "ask.alternative": r"""
 Найдены альтернативные установленные версии "{}".:
@@ -69,6 +70,7 @@ lang = {
         "help.base.deInstall": "FULL removal UVM",
         "help.base.install": "Install UVM",
         "help.base.printVersion": "Get current version ({})",
+        "help.base.clearCache": "Clear cache data",
 
         "ask.alternative": r"""
 Alternative "{}" installations have been found:

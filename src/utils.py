@@ -36,7 +36,7 @@ def addToPath(folder: str):
     fld = folder.rstrip(SEP)
     if not existsInPath(fld):
         subprocess.run(f'{TO_PATH_PATH} add "{fld}"')
-        os.system(f'set PATH=${fld};%PATH%')
+        updateLocalPath()
         print(_('log.addedToPath', fld))
     pass
 
@@ -46,10 +46,16 @@ def existsInPath(folder):
     return folder in result.stdout
 
 
+def updateLocalPath():
+    result = subprocess.run("echo %PATH%", shell=True, capture_output=True, text=True)
+    os.system(f'set PATH={result.stdout}')
+
+
 def removeToPath(folder: str):
     fld = folder.rstrip(SEP)
     if existsInPath(fld):
         subprocess.run(f'{TO_PATH_PATH} remove "{fld}"')
+        updateLocalPath()
         print(_('log.removeToPath', fld))
     pass
 
@@ -69,7 +75,7 @@ def cmd(command, verbose=False):
 def createSymlink(source_dir, target_dir, verbose=VERBOSE):
     try:
         removeSymlink(target_dir)
-        command = 'MKLINK /D/j %s %s >/dev/null 2>&1' % (target_dir, source_dir)
+        command = 'MKLINK /D/j %s %s 2>&1' % (target_dir, source_dir)
         if verbose:
             print(command)
         os.system(command)
@@ -92,7 +98,7 @@ def createSymlink(source_dir, target_dir, verbose=VERBOSE):
 
 def removeSymlink(target_dir, verbose=VERBOSE):
     if os.path.exists(target_dir):
-        command = 'RMDIR %s >/dev/null 2>&1' % target_dir
+        command = 'RMDIR %s 2>&1' % target_dir
         if verbose:
             print(command)
         os.system(command)
@@ -181,6 +187,9 @@ def install():
             if 'uvm.exe' in sys.executable:
                 shutil.copyfile(sys.executable, join(PROGRAM_PATH, "uvm.exe"))
                 addToPath(PROGRAM_PATH)
+            addToPath(join(BIN_PATH, "node"))
+            addToPath(join(BIN_PATH, "php"))
+            addToPath(join(BIN_PATH, "python"))
             sendStat('install')
             return True
         else:

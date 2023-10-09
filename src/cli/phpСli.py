@@ -22,6 +22,14 @@ class PhpCli(Controller):
         title = _('meta.title', "PHP")
         stacked_type = 'nested'
 
+    @ex(hide=True)
+    def _default(self):
+        if isInstalled():
+            self._parser.print_help()
+            exit(0)
+        else:
+            install()
+
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
 
@@ -99,4 +107,16 @@ class PhpCli(Controller):
     )
     def search(self):
         print(php().search(self.app.pargs))
+        pass
+
+    @ex(
+        aliases=['g'],
+        help=_("help.addGlobal"),
+        label="global",
+        arguments=[
+            (['packages'], {"help": _("help.addGlobal"), 'nargs': "+"}),
+        ]
+    )
+    def addGlobal(self):
+        print(php().addGlobal(self.app.pargs))
         pass

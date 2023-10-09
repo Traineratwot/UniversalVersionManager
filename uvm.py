@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 from sys import exit
 
@@ -14,7 +15,7 @@ from cement import App, ex, Controller
 
 from src.cli.nodeCli import NodeCli
 from src.cli.phpСli import PhpCli
-from src.config import PROGRAM_PATH, VERBOSE
+from src.config import PROGRAM_PATH, VERBOSE, CACHE_PATH
 from src.lang import _
 from src.stat import sendStat, futures
 from src.utils import removeToPath, install, isInstalled
@@ -65,7 +66,7 @@ class Base(Controller):
             for path in path_list:
                 if PROGRAM_PATH in path:
                     removeToPath(path)
-            cmd = f'cmd /c timeout /t 1 & rmdir /s /q "{PROGRAM_PATH}"'
+            cmd = f'cmd /c timeout /t 3 & rmdir /s /q "{PROGRAM_PATH}"'
             print(cmd)
             subprocess.Popen(cmd, shell=True)
             exit(0)
@@ -77,6 +78,15 @@ class Base(Controller):
     )
     def printVersion(self):
         print(UVM_VERSION)
+
+    @ex(
+        label="clear",
+        help=_("help.base.clearCache"),
+    )
+    def clearCache(self):
+        shutil.rmtree(CACHE_PATH)
+        os.makedirs(CACHE_PATH, exist_ok=True)
+        pass
 
 
 class UVM(App):
