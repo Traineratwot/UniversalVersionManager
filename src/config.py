@@ -12,4 +12,4 @@ BIN_PATH = join(PROGRAM_PATH, 'current')
 CACHE_PATH = join(PROGRAM_PATH, 'cache')
 TO_PATH_PATH = join(PROGRAM_PATH, 'toPath.exe')
 SETTINGS_FILE = join(PROGRAM_PATH, 'settings.json')
-VERBOSE = 'unittest' in sys.modules.keys() or '-d' in sys.argv or '--dev' in sys.argv
+VERBOSE = 'unittest' in sys.modules.keys() or '-d' in sys.argv

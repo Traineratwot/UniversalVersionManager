@@ -3,7 +3,7 @@ import os
 import re
 import shutil
 import sys
-from os.path import join, dirname
+from os.path import join, dirname, exists
 
 import questionary
 import requests
@@ -17,7 +17,8 @@ from src.cache import MEMORY, SETTINGS, CACHE
 from src.config import VERBOSE, PHP_PATH, BIN_PATH
 from src.lang import _
 from src.stat import sendStat
-from src.utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, getUsed, is_process_running
+from src.utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, \
+    getUsed, is_process_running, file_get_contents, file_put_contents
 
 phpBaseAddress = "https://windows.php.net/downloads/releases/"
 
@@ -58,6 +59,17 @@ class Php(AbstractService):
                 pass
             else:
                 addToPath(join(BIN_PATH, 'php'))
+                if SETTINGS.get('OpenServerIntegrated'):
+                    if not os.environ.get('PHP_DIR'):
+                        command = f'SETX PHP_DIR %s' % dirname(BIN_PATH)
+                        if VERBOSE:
+                            print(command)
+                        os.system(command)
+                    if not os.environ.get('PHP_BIN'):
+                        command = f'SETX PHP_BIN %s' % BIN_PATH
+                        if VERBOSE:
+                            print(command)
+                        os.system(command)
                 pass
 
     def OpenServer(self) -> bool:
@@ -74,9 +86,12 @@ class Php(AbstractService):
                 sendStat('OpenServer', {"on": answer})
                 return answer
             pass
+        else:
+            SETTINGS.set('OpenServerIntegrated', False)
         return False
         pass
 
+    # noinspection PyMethodMayBeStatic
     def OpenServerExits(self):
         path = is_process_running("Open Server Panel.exe") or is_process_running("Open Server.exe")
         if path:
@@ -210,6 +225,23 @@ class Php(AbstractService):
         return my_table
         pass
 
+    # noinspection PyMethodMayBeStatic
+    def addGlobal(self, args):
+        packageList = set(args.packages)
+        packages = set()
+        if exists(join(PHP_PATH, "global.package")):
+            packages = file_get_contents(join(PHP_PATH, "global.package")).strip()
+            packages = set(packages.split("\n"))
+        for package in packageList:
+            print(f"composer global require -g {package}")
+            code = os.system(f"composer global require {package}")
+            if code == 0:
+                packages.add(package)
+            file_put_contents(join(PHP_PATH, "global.package"), "\n".join(packages))
+            file_put_contents(join(BIN_PATH, "php", "global.package"), "\n".join(packages))
+        return "ok"
+        pass
+
 
 def printCurrentPhpVersions():
     php = cmd("php -v")
@@ -229,7 +261,8 @@ def getPhpVersionFromUserRequest(args):
         founded = None
         if userMajor.__str__() not in versions_list:
             return None
-        if userMajor in versions_list and userMinor in versions_list[userMajor] and userBuild in versions_list[userMajor][userMinor]:
+        if userMajor in versions_list and userMinor in versions_list[userMajor] and userBuild in \
+                versions_list[userMajor][userMinor]:
             founded = {
                 "version": '.'.join([userMajor, userMinor, userBuild]),
                 "link": versions_list[userMajor][userMinor][userBuild],
@@ -322,7 +355,8 @@ def getPhpVersions():
                             versions['releases'][arch][major][minor] = {}
                         if build not in versions['releases'][arch][major][minor]:
                             versions['releases'][arch][major][minor][build] = {}
-                        versions['releases'][arch][major][minor][build] = f"https://windows.php.net/downloads/releases/{name}"
+                        versions['releases'][arch][major][minor][
+                            build] = f"https://windows.php.net/downloads/releases/{name}"
                         pass
     except ValueError:
         pass
@@ -345,7 +379,8 @@ def getPhpVersions():
                     versions['archived'][arch][major][minor] = {}
                 if build not in versions['archived'][arch][major][minor]:
                     versions['archived'][arch][major][minor][build] = {}
-                versions['archived'][arch][major][minor][build] = f"https://windows.php.net/downloads/releases/archives/{link.text}"
+                versions['archived'][arch][major][minor][
+                    build] = f"https://windows.php.net/downloads/releases/archives/{link.text}"
     except ValueError:
         pass
     try:

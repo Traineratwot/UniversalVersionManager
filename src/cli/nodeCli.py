@@ -26,6 +26,14 @@ class NodeCli(Controller):
         title = _('meta.title', "NODE")
         stacked_type = 'nested'
 
+    @ex(hide=True)
+    def _default(self):
+        if isInstalled():
+            self._parser.print_help()
+            exit(0)
+        else:
+            install()
+
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
 
@@ -105,9 +113,9 @@ class NodeCli(Controller):
         pass
 
     @ex(
-        aliases=['addglobal', 'global'],
+        aliases=['g'],
         help=_("help.addGlobal"),
-        label="add-global",
+        label="global",
         arguments=[
             (['packages'], {"help": _("help.addGlobal"), 'nargs': "+"}),
         ]

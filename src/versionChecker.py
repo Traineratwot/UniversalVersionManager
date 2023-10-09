@@ -44,10 +44,10 @@ def selfUpdate():
             newFile = join(PROGRAM_PATH, "uvm.exe_new")
             download(file['browser_download_url'], filename=newFile)
             if exists(newFile):
-                cmd = f'cmd /c timeout /t 1 && DEL "{oldFile}" & timeout /t 1 && REN "{newFile}" "{basename(oldFile)}"'
+                cmd = f'cmd /c timeout /t 1 && DEL "{oldFile}" & timeout /t 2 && REN "{newFile}" "{basename(oldFile)}"'
                 print(cmd)
                 subprocess.Popen(cmd, shell=True)
-                exit(2)
+                exit(0)
             exit(1)
             pass
         else:
