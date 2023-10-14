@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 from sys import exit
+from time import sleep
 
 import cement.ext.ext_argparse
 import cement.ext.ext_configparser
@@ -56,7 +57,7 @@ class Base(Controller):
         help=_("help.base.deInstall"),
     )
     def deInstall(self):
-        sendStat('uninstall')
+        sendStat('uvm_uninstall')
         answer = True
         if not VERBOSE:
             q = questionary.confirm(_("ask.deInstall", ))
@@ -113,17 +114,18 @@ if __name__ == '__main__':
         a6 = cement.ext.ext_argparse
         a7 = UVM_VERSION
         with UVM() as app:
+            sendStat('uvm_launch')
+            try:
+                for future in futures:
+                    future.get()
+            except:
+                pass
             app.run()
-        for future in futures:
-            future.get()
-    except requests.exceptions.HTTPError:
-        pass
-    except requests.exceptions.ConnectionError:
-        pass
-    except requests.exceptions.Timeout:
-        pass
-    except requests.exceptions.RequestException:
-        pass
+        try:
+            for future in futures:
+                future.get()
+        except:
+            pass
     except ValueError as e:
         print("Error")
         print(e)

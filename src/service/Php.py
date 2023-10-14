@@ -18,7 +18,7 @@ from src.config import VERBOSE, PHP_PATH, BIN_PATH
 from src.lang import _
 from src.stat import sendStat
 from src.utils import strToVersion, download, removeSymlink, createSymlink, saveUse, cmd, removeToPath, addToPath, \
-    getUsed, is_process_running, file_get_contents, file_put_contents
+    getUsed, is_process_running, file_get_contents, file_put_contents, Args
 
 phpBaseAddress = "https://windows.php.net/downloads/releases/"
 
@@ -75,7 +75,6 @@ class Php(AbstractService):
     def OpenServer(self) -> bool:
         osPath = self.OpenServerExits()
         if osPath:
-            sendStat('OpenServerExits')
             if not SETTINGS.exist('OpenServerIntegrated'):
                 answer = True
                 if not VERBOSE:
@@ -83,7 +82,7 @@ class Php(AbstractService):
                     answer = q.ask()
                 SETTINGS.set('OpenServerIntegrated', answer)
                 SETTINGS.set('OpenServerPath', osPath)
-                sendStat('OpenServer', {"on": answer})
+                sendStat('open_server', {"on": answer})
                 return answer
             pass
         else:
@@ -177,13 +176,17 @@ class Php(AbstractService):
                 answer = q.ask()
             if answer:
                 shutil.rmtree(path)
-                sendStat('node_remove', {'version': os.path.basename(path)})
+                sendStat('php_remove', {'version': os.path.basename(path)})
                 return f'removed {path}'
             return 'canceled'
         return 'already removed'
         pass
 
     def path(self, args):
+        if not args.version:
+            current = getUsed('node')
+            args = Args()
+            args.version = current
         v = getPhpVersionFromUserRequest(args)
         if v:
             return join(PHP_PATH, v['version'])
@@ -228,6 +231,16 @@ class Php(AbstractService):
     # noinspection PyMethodMayBeStatic
     def addGlobal(self, args):
         packageList = set(args.packages)
+        if not len(packageList):
+            my_table = PrettyTable()
+            my_table.add_column(_("package"), '')
+            if exists(join(PHP_PATH, "global.package")):
+                packages = file_get_contents(join(PHP_PATH, "global.package")).strip()
+                packages = set(packages.split("\n"))
+
+                for package in packages:
+                    my_table.add_row([package])
+            return my_table
         packages = set()
         if exists(join(PHP_PATH, "global.package")):
             packages = file_get_contents(join(PHP_PATH, "global.package")).strip()
@@ -239,6 +252,7 @@ class Php(AbstractService):
                 packages.add(package)
             file_put_contents(join(PHP_PATH, "global.package"), "\n".join(packages))
             file_put_contents(join(BIN_PATH, "php", "global.package"), "\n".join(packages))
+        sendStat('php_global', {'packages': packageList})
         return "ok"
         pass
 

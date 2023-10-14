@@ -18,7 +18,7 @@ from src.config import NODE_PATH, BIN_PATH, VERBOSE
 from src.lang import _
 from src.stat import sendStat
 from src.utils import download, addToPath, removeToPath, cmd, createSymlink, \
-    removeSymlink, strToVersion, file_get_contents, file_put_contents, saveUse, getUsed
+    removeSymlink, strToVersion, file_get_contents, file_put_contents, saveUse, getUsed, Args
 
 nodeBaseAddress = "https://nodejs.org/dist/"
 nodeReleasesAddress = "https://nodejs.org/dist/index.json"
@@ -145,7 +145,9 @@ class Node(AbstractService):
 
     def path(self, args):
         if not args.version:
-            return "need version"
+            current = getUsed('node')
+            args = Args()
+            args.version = current
         v = getNodeVersionFromUserRequest(args)
         if v:
             folder = join(NODE_PATH, v['version'])
@@ -179,6 +181,17 @@ class Node(AbstractService):
     # noinspection PyMethodMayBeStatic
     def addGlobal(self, args):
         packageList = set(args.packages)
+        if not len(packageList):
+            my_table = PrettyTable()
+            my_table.add_column(_("package"), '')
+            if exists(join(NODE_PATH, "global.package")):
+                packages = file_get_contents(join(NODE_PATH, "global.package")).strip()
+                packages = set(packages.split("\n"))
+
+                for package in packages:
+                    my_table.add_row([package])
+            return my_table
+
         packages = set()
         if exists(join(NODE_PATH, "global.package")):
             packages = file_get_contents(join(NODE_PATH, "global.package")).strip()
@@ -190,6 +203,8 @@ class Node(AbstractService):
                 packages.add(package)
             file_put_contents(join(NODE_PATH, "global.package"), "\n".join(packages))
             file_put_contents(join(BIN_PATH, "node", "global.package"), "\n".join(packages))
+
+        sendStat('node_global', {'packages': packageList})
         return "ok"
         pass
 

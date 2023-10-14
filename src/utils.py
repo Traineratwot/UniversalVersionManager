@@ -190,9 +190,14 @@ def install():
             addToPath(join(BIN_PATH, "node"))
             addToPath(join(BIN_PATH, "php"))
             addToPath(join(BIN_PATH, "python"))
-            sendStat('install')
+            sendStat('uvm_install')
             return True
         else:
             return False
     else:
         return True
+
+
+class Args:
+    def __init__(self):
+        self.version = "999.999.999"

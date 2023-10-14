@@ -11,6 +11,7 @@ from SimpleCache2 import simple_cache
 
 from src.cache import MEMORY
 from src.lang import langKey
+from version import UVM_VERSION
 
 pool = Pool(10)
 futures = []
@@ -34,6 +35,7 @@ def getUserId() -> str:
 
 
 def sendStat(action: str = None, data: dict = None) -> None:
+    # send(action,data)
     try:
         futures.append(pool.apply_async(send, args=[action, data]))
     except ValueError:
@@ -43,26 +45,24 @@ def sendStat(action: str = None, data: dict = None) -> None:
 
 def send(action: str = None, data: dict = None) -> None:
     userId = getUserId()
-    url = r'https://unicorn.traineratwot.site/matomo.php?'
+    url = r'https://thor.traineratwot.site/api/event'
     sys.argv.pop(0)
-    params = {
-        "apiv": "1",
-        "idsite": "4",
-        "rec": "1",
-        "ua": "UVM",
-        "url": "/".join(sys.argv)
+    payload = {
+        "domain": "uvm",
+        "url": "/".join(sys.argv),
     }
+    headers = {
+        'Content-Type': 'application/json',
+        'User-Agent': 'PostmanRuntime/'+UVM_VERSION,
+        'X-Forwarded-For': userId,
+    }
+
     if action:
-        params['action_name'] = action
+        payload['name'] = action
     if data:
-        params['uadata'] = json.dumps(data)
-    if userId:
-        params['_id'] = userId
-    if langKey:
-        params['lang'] = langKey
-    url = url + urlencode(params)
+        payload['props'] = json.dumps(data)
     try:
-        requests.request("GET", url, timeout=5)
+        requests.request("POST", url, headers=headers, data=json.dumps(payload))
     except requests.exceptions.HTTPError:
         pass
     except requests.exceptions.ConnectionError:
