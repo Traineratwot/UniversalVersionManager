@@ -190,7 +190,7 @@ def install():
             addToPath(join(BIN_PATH, "node"))
             addToPath(join(BIN_PATH, "php"))
             addToPath(join(BIN_PATH, "python"))
-            sendStat('install')
+            sendStat('uvm_install')
             return True
         else:
             return False

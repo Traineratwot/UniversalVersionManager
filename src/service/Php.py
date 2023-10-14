@@ -75,7 +75,6 @@ class Php(AbstractService):
     def OpenServer(self) -> bool:
         osPath = self.OpenServerExits()
         if osPath:
-            sendStat('OpenServerExits')
             if not SETTINGS.exist('OpenServerIntegrated'):
                 answer = True
                 if not VERBOSE:
@@ -83,7 +82,7 @@ class Php(AbstractService):
                     answer = q.ask()
                 SETTINGS.set('OpenServerIntegrated', answer)
                 SETTINGS.set('OpenServerPath', osPath)
-                sendStat('OpenServer', {"on": answer})
+                sendStat('open_server', {"on": answer})
                 return answer
             pass
         else:
@@ -177,7 +176,7 @@ class Php(AbstractService):
                 answer = q.ask()
             if answer:
                 shutil.rmtree(path)
-                sendStat('node_remove', {'version': os.path.basename(path)})
+                sendStat('php_remove', {'version': os.path.basename(path)})
                 return f'removed {path}'
             return 'canceled'
         return 'already removed'
