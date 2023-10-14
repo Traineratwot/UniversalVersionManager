@@ -196,3 +196,8 @@ def install():
             return False
     else:
         return True
+
+
+class Args:
+    def __init__(self):
+        self.version = "999.999.999"

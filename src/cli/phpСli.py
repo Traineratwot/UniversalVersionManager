@@ -33,9 +33,6 @@ class PhpCli(Controller):
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
 
-    def _default(self):
-        print(self.app.pargs)
-
     @ex(
         help=_("help.use"),
         aliases=['u'],
@@ -91,7 +88,7 @@ class PhpCli(Controller):
         help=_("help.path"),
         aliases=['p'],
         arguments=[
-            (['version'], {"help": _("help.path"), }),
+            (['version'], {"help": _("help.path"), 'nargs': "?" }),
         ]
     )
     def path(self):
@@ -114,7 +111,7 @@ class PhpCli(Controller):
         help=_("help.addGlobal"),
         label="global",
         arguments=[
-            (['packages'], {"help": _("help.addGlobal"), 'nargs': "+"}),
+            (['packages'], {"help": _("help.addGlobal"), 'nargs': "*"}),
         ]
     )
     def addGlobal(self):

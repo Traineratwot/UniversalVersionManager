@@ -37,9 +37,6 @@ class NodeCli(Controller):
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
 
-    def _default(self):
-        self.use()
-
     @ex(
         help=_("help.use"),
         aliases=['u'],
@@ -94,7 +91,7 @@ class NodeCli(Controller):
         help=_("help.path"),
         aliases=['p'],
         arguments=[
-            (['version'], {"help": _("help.path"), }),
+            (['version'], {"help": _("help.path"), 'nargs': "?"}),
         ]
     )
     def path(self):
@@ -117,7 +114,7 @@ class NodeCli(Controller):
         help=_("help.addGlobal"),
         label="global",
         arguments=[
-            (['packages'], {"help": _("help.addGlobal"), 'nargs': "+"}),
+            (['packages'], {"help": _("help.addGlobal"), 'nargs': "*"}),
         ]
     )
     def addGlobal(self):

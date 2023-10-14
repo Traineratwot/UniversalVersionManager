@@ -115,18 +115,17 @@ if __name__ == '__main__':
         a7 = UVM_VERSION
         with UVM() as app:
             sendStat('uvm_launch')
+            try:
+                for future in futures:
+                    future.get()
+            except:
+                pass
             app.run()
-        for future in futures:
-            future.get()
-
-    except requests.exceptions.HTTPError:
-        pass
-    except requests.exceptions.ConnectionError:
-        pass
-    except requests.exceptions.Timeout:
-        pass
-    except requests.exceptions.RequestException:
-        pass
+        try:
+            for future in futures:
+                future.get()
+        except:
+            pass
     except ValueError as e:
         print("Error")
         print(e)

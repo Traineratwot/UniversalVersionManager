@@ -7,18 +7,14 @@ from termcolor import colored
 from src.config import PROGRAM_PATH, SEP
 from src.service import Node
 from src.service.Node import getNodeVersions
-from src.utils import cmd
-
-
-class Args:
-    def __init__(self):
-        self.version = "20.7.0"
+from src.utils import cmd, Args
 
 
 class NodeTest(unittest.TestCase):
 
     def setUp(self):
         self.args = Args()
+        self.args.version = '20.7.0'
         self.node = Node.Node()
 
     def tearDown(self):
