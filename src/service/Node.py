@@ -268,7 +268,7 @@ def getNodeVersions():
         versions['list'] = {}
         if VERBOSE:
             print(f"Load data from {nodeReleasesAddress}")
-        data = json.loads(requests.get(nodeReleasesAddress).content)
+        data = json.loads(requests.get(nodeReleasesAddress, verify=False).content)
         for versionData in data:
             v = Version(versionData['version'])
             major = v.get_major_version().__str__()

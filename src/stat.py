@@ -62,7 +62,7 @@ def send(action: str = None, data: dict = None) -> None:
     if data:
         payload['props'] = json.dumps(data)
     try:
-        requests.request("POST", url, headers=headers, data=json.dumps(payload))
+        requests.request("POST", url, headers=headers, data=json.dumps(payload), timeout=2, verify=False)
     except requests.exceptions.HTTPError:
         pass
     except requests.exceptions.ConnectionError:

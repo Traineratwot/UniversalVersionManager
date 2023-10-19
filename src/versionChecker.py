@@ -19,7 +19,7 @@ url = "https://api.github.com/repos/Traineratwot/UniversalVersionManager/release
 
 @simple_cache(CACHE, ttl=3600 * 24 * 7)
 def getRelease():
-    response = requests.request("GET", url)
+    response = requests.request("GET", url, verify=False)
     return response.json()
 
 

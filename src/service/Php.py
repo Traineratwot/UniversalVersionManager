@@ -349,7 +349,7 @@ def getPhpVersions():
     if VERBOSE:
         print(f"Load data from {phpBaseAddress}")
     try:
-        data = json.loads(requests.get(phpBaseAddress + "releases.json").content)
+        data = json.loads(requests.get(phpBaseAddress + "releases.json", verify=False).content)
         for v in data:
             versionData = data[v]
             v = Version(versionData['version'])
@@ -376,7 +376,7 @@ def getPhpVersions():
         pass
     try:
         regex = r"^php-(\d+\.\d+\.\d+)-Win32-(.+?)-x(86|64)\.zip$"
-        root = BeautifulSoup(requests.get(phpBaseAddress + "archives/").content, 'html.parser')
+        root = BeautifulSoup(requests.get(phpBaseAddress + "archives/", verify=False).content, 'html.parser')
         links = root.select('pre a')
         for link in links:
             matches = re.search(regex, link.text)
