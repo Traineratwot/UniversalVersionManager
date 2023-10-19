@@ -1,5 +1,5 @@
-import sys
-from urllib.parse import urljoin
+from php import Php
 
-argv = sys.argv.pop(0)
-print("/".join(sys.argv))
+data = Php.parse_ini_file("example.ini")
+
+print(data)
